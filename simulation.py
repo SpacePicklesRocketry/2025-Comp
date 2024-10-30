@@ -73,7 +73,7 @@ fin_set = calisto.add_trapezoidal_fins(
     span=0.110,
     position=-1.04956,
     cant_angle=0.5,
-    airfoil=None  
+        foil=None  
 )
 tail = calisto.add_tail(
     top_radius=0.0635, bottom_radius=0.0435, length=0.060, position=-1.194656
