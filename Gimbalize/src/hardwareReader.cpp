@@ -2,6 +2,7 @@
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_BMP085.h>
 
+
 // Create sensor objects
 Adafruit_MPU6050 mpu;
 Adafruit_BMP085 bmp;
@@ -9,7 +10,7 @@ Adafruit_BMP085 bmp;
 // Variables to store integrated angles
 float angleX = 0;
 float angleY = 0;
-float angleZ = 0;
+float angleZ = 0; 
 
 // Time tracking
 unsigned long lastTime;
