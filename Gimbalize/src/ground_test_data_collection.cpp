@@ -119,4 +119,20 @@ for(int i = 0; i < 400; i++){
   delay(100);
 }
  myFile.close()
+
+ //Green
+    digitalWrite(LEDR, HIGH);
+    digitalWrite(LEDG, LOW);
+    digitalWrite(LEDB, HIGH);
+    analogWrite(LEDR, 0);
+
+    delay(5000);
+
+    //green
+    digitalWrite(LEDR, HIGH);
+    digitalWrite(LEDG, HIGH);
+    digitalWrite(LEDB, HIGH);
+    analogWrite(LEDR,255);
+
+    delay(1000);
 }
