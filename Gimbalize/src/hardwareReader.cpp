@@ -1,5 +1,5 @@
 #include <Wire.h>
-#include "SparkFun_BNO08x_Arduino_Library.h"
+#include "ADAFRUIT_BNO08X.h"
 #include <RohmMultiSensor.h>
 
 
