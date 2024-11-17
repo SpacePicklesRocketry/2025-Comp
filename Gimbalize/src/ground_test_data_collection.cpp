@@ -68,10 +68,10 @@ void loop() {
 
   int test_number = 1;
 
-  if (sd_init = true && SD.exists("test_" + test_number + ".csv")) {
+  if (sd_init = true && SD.exists("test_" + test_number + ".txt")) {
     
     test_number = test_number++;
-    myFile = SD.open("test_" + test_number + ".csv", FILE_WRITE);
+    myFile = SD.open("test_" + test_number + ".txt", FILE_WRITE);
   }
   Serial.print("SD card initialized!"); 
 
