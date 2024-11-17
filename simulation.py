@@ -42,15 +42,12 @@ Pro75M1670 = SolidMotor(
 
 Pro75M1670.info()
 
-custom_power_off_drag = [(0, 0.5), (100, 0.4), (200, 0.35), (300, 0.3), (400, 0.25)]
-custom_power_on_drag = [(0, 0.6), (100, 0.45), (200, 0.4), (300, 0.35), (400, 0.3)]
-
 calisto = Rocket(
-    radius=127 / 2000,
-    mass=14.426,
-    inertia=(6.321, 6.321, 0.034),
-    power_off_drag=custom_power_off_drag, 
-    power_on_drag=custom_power_on_drag, 
+    radius=102/ 2000, #need to adjust for next iteration
+    mass=14.122,#need to adjust for next iteration 
+    inertia=(0.004,0.004,0.0001485),#need to adjust for iteration
+    power_off_drag=0.501,#need to adjust for iteration
+    power_on_drag=0.501,#need to adjust for iteration
     center_of_mass_without_motor=0,
     coordinate_system_orientation="tail_to_nose",
 )
@@ -107,8 +104,7 @@ test_flight = Flight(
     verbose=True
 )
 
-test_flight.plot_trajectory_3d() 
-
+test_flight.plots.trajectory_3d()
 test_flight.all_info()
 
 test_flight.export_kml(

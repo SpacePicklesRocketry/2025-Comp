@@ -1,0 +1,1 @@
+//Pseudo functions of state machine 
