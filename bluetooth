@@ -1,0 +1,107 @@
+#include <Arduino_LSM9DS1.h>
+#include <ArduinoBLE.h>
+
+// Define LED pins for status indication
+#define LEDR 2
+#define LEDG 3
+#define LEDB 4
+
+// Declare variables for IMU data
+float gx, gy, gz;
+float ax, ay, az;
+float mx, my, mz;
+
+// BLE Service and Characteristics
+BLEService imuService("180A"); // Custom service UUID
+BLEFloatCharacteristic gyroCharacteristicX("2A00", BLERead | BLENotify);
+BLEFloatCharacteristic gyroCharacteristicY("2A01", BLERead | BLENotify);
+BLEFloatCharacteristic gyroCharacteristicZ("2A02", BLERead | BLENotify);
+
+void setup() {
+  // Initialize LED pins
+  pinMode(LEDR, OUTPUT);
+  pinMode(LEDG, OUTPUT);
+  pinMode(LEDB, OUTPUT);
+
+  // Start serial communication
+  Serial.begin(9600);
+  while (!Serial);
+
+  Serial.println("Started");
+
+  // Initialize IMU
+  if (!IMU.begin()) {
+    Serial.println("Failed to initialize IMU!");
+
+    // RED LED to indicate error
+    digitalWrite(LEDR, LOW);
+    digitalWrite(LEDG, HIGH);
+    digitalWrite(LEDB, HIGH);
+    delay(1000);
+    digitalWrite(LEDR, HIGH);
+    while (1);
+  }
+  Serial.println("IMU initialized!");
+
+  // Initialize BLE
+  if (!BLE.begin()) {
+    Serial.println("Starting Bluetooth failed!");
+    
+    // RED LED to indicate error
+    digitalWrite(LEDR, LOW);
+    digitalWrite(LEDG, HIGH);
+    digitalWrite(LEDB, HIGH);
+    while (1);
+  }
+
+  // Set BLE device name and services
+  BLE.setLocalName("Nano33BLE_IMU");
+  BLE.setAdvertisedService(imuService);
+  imuService.addCharacteristic(gyroCharacteristicX);
+  imuService.addCharacteristic(gyroCharacteristicY);
+  imuService.addCharacteristic(gyroCharacteristicZ);
+  BLE.addService(imuService);
+
+  // Start advertising BLE
+  BLE.advertise();
+  Serial.println("BLE device is now advertising...");
+
+  // GREEN LED to indicate ready state
+  digitalWrite(LEDR, HIGH);
+  digitalWrite(LEDG, LOW);
+  digitalWrite(LEDB, HIGH);
+}
+
+void loop() {
+  // Wait for a central device to connect
+  BLEDevice central = BLE.central();
+  if (central) {
+    Serial.print("Connected to central: ");
+    Serial.println(central.address());
+
+    // Loop while central is connected
+    while (central.connected()) {
+      // Read IMU data
+      if (IMU.gyroscopeAvailable()) {
+        IMU.readGyroscope(gx, gy, gz);
+
+        // Update BLE characteristics
+        gyroCharacteristicX.writeValue(gx);
+        gyroCharacteristicY.writeValue(gy);
+        gyroCharacteristicZ.writeValue(gz);
+
+        // Print gyroscope data to Serial Monitor
+        Serial.print("Gyro X: ");
+        Serial.print(gx);
+        Serial.print(" Y: ");
+        Serial.print(gy);
+        Serial.print(" Z: ");
+        Serial.println(gz);
+      }
+
+      delay(100); // Adjust delay as needed
+    }
+
+    Serial.println("Disconnected from central.");
+  }
+}
