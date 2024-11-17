@@ -88,33 +88,33 @@ for(int i = 0; i < 400; i++){
     myFile.print(gx + ", " +  gy + ", " + gz);
 
 
-    // Serial.print(gx);
-    // Serial.print('\t');
-    // Serial.print(gy);
-    // Serial.print('\t');
-    // Serial.println(gz);
+    Serial.print(gx);
+    Serial.print('\t');
+    Serial.print(gy);
+    Serial.print('\t');
+    Serial.println(gz);
   }
 
   if (IMU.accelerationAvailable()) {
     IMU.readAcceleration(ax, ay, az);
     myFile.print(ax + ", " +  ay + ", " + az);
 
-    // Serial.print(ax);
-    // Serial.print('\t');
-    // Serial.print(ay);
-    // Serial.print('\t');
-    // Serial.println(az);
+    Serial.print(ax);
+    Serial.print('\t');
+    Serial.print(ay);
+    Serial.print('\t');
+    Serial.println(az);
   }
 
   if (IMU.magneticFieldAvailable()) {
     IMU.readMagneticField(mx, my, mz);
     myFile.print(mx + ", " +  my + ", " + mz + "\n");
 
-    // Serial.print(mx);
-    // Serial.print('\t');
-    // Serial.print(my);
-    // Serial.print('\t');
-    // Serial.println(mz);
+    Serial.print(mx);
+    Serial.print('\t');
+    Serial.print(my);
+    Serial.print('\t');
+    Serial.println(mz);
   }
   delay(100);
 }
