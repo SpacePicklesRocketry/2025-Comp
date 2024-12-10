@@ -19,6 +19,14 @@ unsigned long currentTime;
 
 #define SD_CS_PIN SDCARD_SS_PIN
 
+// Kalman filter variables
+float Q_angle = 0.001; // Process noise variance for the angle
+float Q_gyro = 0.003;  // Process noise variance for the gyro bias
+float R_angle = 0.03;  // Measurement noise variance
+float biasX = 0, biasY = 0, biasZ = 0;
+float P[3][2][2] = {0}; // Error covariance matrix for X, Y, Z
+float angleKalmanX = 0, angleKalmanY = 0, angleKalmanZ = 0;
+
 void setup() {
   Serial.begin(115200);
   while (!Serial) {
@@ -78,6 +86,36 @@ void setup() {
   lastTime = millis();
 }
 
+float applyKalmanFilter(float newAngle, float newRate, float& angle, float& bias, float P[2][2], float deltaTime) {
+  // Prediction step
+  angle += deltaTime * (newRate - bias);
+  P[0][0] += deltaTime * (deltaTime * P[1][1] - P[0][1] - P[1][0] + Q_angle);
+  P[0][1] -= deltaTime * P[1][1];
+  P[1][0] -= deltaTime * P[1][1];
+  P[1][1] += Q_gyro * deltaTime;
+
+  // Update step
+  float S = P[0][0] + R_angle; // Estimate error
+  float K[2]; // Kalman gain
+  K[0] = P[0][0] / S;
+  K[1] = P[1][0] / S;
+
+  float y = newAngle - angle; // Angle difference
+  angle += K[0] * y;
+  bias += K[1] * y;
+
+  // Update error covariance
+  float P00_temp = P[0][0];
+  float P01_temp = P[0][1];
+
+  P[0][0] -= K[0] * P00_temp;
+  P[0][1] -= K[0] * P01_temp;
+  P[1][0] -= K[1] * P00_temp;
+  P[1][1] -= K[1] * P01_temp;
+
+  return angle;
+}
+
 void loop() {
   currentTime = millis();
   float deltaTime = (currentTime - lastTime) / 1000.0;
@@ -86,37 +124,40 @@ void loop() {
   sensors_event_t a, g, temp;
   mpu.getEvent(&a, &g, &temp);
 
-  angleX = g.gyro.x * deltaTime * 180.0 / PI;
-  angleY = g.gyro.y * deltaTime * 180.0 / PI;
-  angleZ = g.gyro.z * deltaTime * 180.0 / PI;
+  float rawAngleX = g.gyro.x * deltaTime * 180.0 / PI;
+  float rawAngleY = g.gyro.y * deltaTime * 180.0 / PI;
+  float rawAngleZ = g.gyro.z * deltaTime * 180.0 / PI;
+
+  angleKalmanX = applyKalmanFilter(rawAngleX, g.gyro.x, angleKalmanX, biasX, P[0], deltaTime);
+  angleKalmanY = applyKalmanFilter(rawAngleY, g.gyro.y, angleKalmanY, biasY, P[1], deltaTime);
+  angleKalmanZ = applyKalmanFilter(rawAngleZ, g.gyro.z, angleKalmanZ, biasZ, P[2], deltaTime);
 
   float temperature = bmp.readTemperature();
   float pressure = bmp.readPressure();
   float altitude = bmp.readAltitude(1013.25);
 
-  Serial.print("Angle X: ");
-  Serial.print(angleX);
-  Serial.print(", Angle Y: ");
-  Serial.print(angleY);
-  Serial.print(", Angle Z: ");
-  Serial.print(angleZ);
+  Serial.print("Kalman Angle X: ");
+  Serial.print(angleKalmanX);
+  Serial.print(", Kalman Angle Y: ");
+  Serial.print(angleKalmanY);
+  Serial.print(", Kalman Angle Z: ");
+  Serial.print(angleKalmanZ);
   Serial.print(", Temperature: ");
   Serial.print(temperature);
   Serial.print(" C, Pressure: ");
   Serial.print(pressure);
   Serial.print(" Pa, Altitude: ");
-  Serial.print(altitude);
-  Serial.println(" m");
+  Serial.println(altitude);
 
   dataFile = SD.open("data_log.csv", FILE_WRITE);
   if (dataFile) {
     dataFile.print(currentTime);
     dataFile.print(", ");
-    dataFile.print(angleX);
+    dataFile.print(angleKalmanX);
     dataFile.print(", ");
-    dataFile.print(angleY);
+    dataFile.print(angleKalmanY);
     dataFile.print(", ");
-    dataFile.print(angleZ);
+    dataFile.print(angleKalmanZ);
     dataFile.print(", ");
     dataFile.print(temperature);
     dataFile.print(", ");
