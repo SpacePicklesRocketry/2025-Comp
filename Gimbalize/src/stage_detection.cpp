@@ -59,18 +59,18 @@ void detectFlightPhase(float accel_x, float accel_y, float accel_z, float altitu
         case (current_stage == FlightPhase.GROUND && accel_z >= launch_accel_threshold):
             Serial.println("Launch detected!");
             current_stage = FlightPhase.POWERED_ASCENT;
-       case (current_stage == FlightPhase.POWERED_ASCENT && accel_z > coast_accel_threshold && current_pressure-last_pressure < 1 ):
+        case (current_stage == FlightPhase.POWERED_ASCENT && accel_z > coast_accel_threshold && current_pressure-last_pressure < 1 ):
             Serial.println("Coasting Phase detected!");
             current_stage = FlightPhase.COASTING;
-       case (current_stage == FlightPhase.COASTING && abs(altitude - apogee_altitude_threshold)<10 && accel_z < 5):
+        case (current_stage == FlightPhase.COASTING && abs(altitude - apogee_altitude_threshold)<10 && accel_z < 5):
             Serial.println("Apogee detected!");
             current_stage = FlightPhase.APOGEE;
-       case (current_stage == FlightPhase.APOGEE && 0 > accel_z ):
+        case (current_stage == FlightPhase.APOGEE && 0 > accel_z ):
             current_stage = FlightPhase.DESCENT;
-       case (current_stage == FlightPhase.DESCENT && abs(0 - accel_z) < 2) : // <2 is accounting for hallucination data
+        case (current_stage == FlightPhase.DESCENT && abs(0 - accel_z) < 2) : // <2 is accounting for hallucination data
             Serial.println("Landing detected!");
             current_stage = FlightPhase.LANDING;
-       default:
+        default:
             Serial.println("PROBLEM DETECTED!");
         }
     
