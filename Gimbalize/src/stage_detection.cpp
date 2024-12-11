@@ -7,6 +7,7 @@
 launch_accel_threshold = 75; // m/s^2
 coast_accel_threshold = 40; // m/s^2
 apogee_altitude_threshold = 240.792; // m
+current_stage = FlightPhase.GROUND;
 
 
 // Initialize sensors
@@ -43,38 +44,32 @@ void read_sensor_data(float &accel_x, float &accel_y, float &accel_z, float &alt
 }
 
 // Main loop
-void detectFlightPhase(float accel_x, float accel_y, float accel_z, float altitude, float current_pressure, float last_pressure, float current_phase){
+void detectFlightPhase(float accel_x, float accel_y, float accel_z, float altitude, float current_pressure, float last_pressure, float current_stage){
 
     read_sensor_data(accel_x, accel_y, accel_z, altitude);
     current_pressure = 1013;
     last_pressure = 1013;
-    current_phase = "ground";
+    
 
 
     
     // Detect flight phases based on sensor data and thresholds
 
     switch(true){
-        case (current_phase == "ground" && accel_z >= launch_accel_threshold):
+        case (current_stage == FlightPhase.GROUND && accel_z >= launch_accel_threshold):
             Serial.println("Launch detected!");
-            FlightPhase current_stage = LAUNCH;
-            current_phase = "powered ascent"
-       case (current_phase == "powered_acsent" && accel_z > coast_accel_threshold && current_pressure-last_pressure < 1 ):
+            current_stage = FlightPhase.POWERED_ASCENT;
+       case (current_stage == FlightPhase.POWERED_ASCENT && accel_z > coast_accel_threshold && current_pressure-last_pressure < 1 ):
             Serial.println("Coasting Phase detected!");
-            FlightPhase current_stage = POWERED_ASCENT;
-            current_phase = "coasting";
-       case (current_phase == "coasting" && abs(altitude - apogee_altitude_threshold)<10 && accel_z < 5):
+            current_stage = FlightPhase.COASTING;
+       case (current_stage == FlightPhase.COASTING && abs(altitude - apogee_altitude_threshold)<10 && accel_z < 5):
             Serial.println("Apogee detected!");
-            FlightPhase current_stage = COASTING;
-            current_phase = "apogee";
-       case (current_phase == "apogee" && 0 > accel_z ):
-            Serial.println("Descent detected!");
-            current_phase = "descent";
-            FlightPhase current_stage = DESCENT;
-       case (current_phase == "descent" && abs(0 - accel_z) < 2) : // <2 is accounting for hallucination data
+            current_stage = FlightPhase.APOGEE;
+       case (current_stage == FlightPhase.APOGEE && 0 > accel_z ):
+            current_stage = FlightPhase.DESCENT;
+       case (current_stage == FlightPhase.DESCENT && abs(0 - accel_z) < 2) : // <2 is accounting for hallucination data
             Serial.println("Landing detected!");
-            current_phase = "landing";
-            FlightPhase current_stage = LANDING;
+            current_stage = FlightPhase.LANDING;
        default:
             Serial.println("PROBLEM DETECTED!");
         }

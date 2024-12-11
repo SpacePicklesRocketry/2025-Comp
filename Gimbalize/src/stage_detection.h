@@ -11,13 +11,15 @@ const float coast_accel_threshold;
 const float apogee_altitude_threshold;
 
 enum FlightPhase {
-    LAUNCH,
+    GROUND,
     POWERED_ASCENT,
     COASTING,
     APOGEE,
     DESCENT,
     LANDING
 };
+
+FlightPhase current_stage; 
 
 
 // Function prototypes
