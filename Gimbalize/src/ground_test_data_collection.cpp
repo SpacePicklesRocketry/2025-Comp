@@ -1,13 +1,19 @@
-#include <Arduino_LSM9DS1.h>
 #include <MKRIMU.h>
 #include <SPI.h>
 #include <SD.h>
+#include <Wire.h>
+#include <Adafruit_BMP085.h>
 
 // Define LED pins
 #define STATUSLED 13
 
 // Define SD card pin
 #define SD_PIN 10
+
+// Define barometer settings
+#define BMP_SDA A4 // Adjust for your microcontroller
+#define BMP_SCL D12
+#define SEALEVELPRESSURE_HPA (1013.25)
 
 // Declare file for SD operations
 File myFile;
@@ -51,7 +57,17 @@ void setup() {
     while (1);
   }
   Serial.println("SD card initialized!");
+
+  // Initialize BMP
+  if (!bmp.begin_I2C()) {   // hardware I2C mode, can pass in address & alt Wire
+    Serial.println("BMP intialiation failed!");
+    while (1);
+  }
+  Serial.println("BMP intiialized!");
+  bmp.setOutputDataRate(BMP3_ODR_50_HZ);
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void loop() {
   // Variable to store test file number
@@ -72,13 +88,14 @@ void loop() {
   }
 
   // Write header to the file
-  myFile.println("Gyro_X, Gyro_Y, Gyro_Z, Acc_X, Acc_Y, Acc_Z, Mag_X, Mag_Y, Mag_Z");
-  Serial.println("Gyro_X, Gyro_Y, Gyro_Z, Acc_X, Acc_Y, Acc_Z, Mag_X, Mag_Y, Mag_Z");
+  myFile.println("Gyro_X, Gyro_Y, Gyro_Z, Acc_X, Acc_Y, Acc_Z, Mag_X, Mag_Y, Mag_Z, BMP_Temp, BMP_Preasure, BMP_Alt");
+  Serial.println("Gyro_X, Gyro_Y, Gyro_Z, Acc_X, Acc_Y, Acc_Z, Mag_X, Mag_Y, Mag_Z, BMP_Temp, BMP_Preasure, BMP_Alt");
 
   // Declare variables to hold sensor data
   float gx, gy, gz;
   float ax, ay, az;
   float mx, my, mz;
+  
 
   // Read data from IMU and write to the file
   for (int i = 0; i < 400; i++) {
@@ -93,11 +110,11 @@ void loop() {
 
       // Print gyroscope data to Serial Monitor
       Serial.print("Gyroscope - X: ");
-      Serial.print(x);
+      Serial.print(gx);
       Serial.print(" Y: ");
-      Serial.print(y);
+      Serial.print(gy);
       Serial.print(" Z: ");
-      Serial.println(z);
+      Serial.println(gz);
     }
 
     if (IMU.accelerationAvailable()) {
@@ -135,21 +152,27 @@ void loop() {
       Serial.println(mz);
     }
 
-    delay(100);
+    if(bmp.performReading()) {
+      myFile.print(bmp.temperature);
+      myFile.print(", ");
+      myFile.println(bmp.preasure/100.0);
+      myFile.print(", ");
+      myFile.print(bmp.readAltitude(SEALEVELPRESSURE_HPA));
+
+      // Print into Serial Monitor
+      Serial.print("Temperature: ");
+      Serial.print(bmp.temperature);
+      Serial.print("BMP Preasure:");
+      Serial.println(bmp.preasure/100.0);
+      Serial.print("Altitude Estimate: ");
+      Serialln.print(bmp.readAltitude(SEALEVELPRESSURE_HPA));
+    }
   }
+
+
 
   // Close the file
   myFile.close();
   Serial.println("Data saved successfully!");
 
-  // GREEN LED to indicate success
-  digitalWrite(LEDR, HIGH);
-  digitalWrite(LEDG, LOW);
-  digitalWrite(LEDB, HIGH);
-  delay(5000);
-
-  // Turn off LEDs
-  digitalWrite(LEDR, HIGH);
-  digitalWrite(LEDG, HIGH);
-  digitalWrite(LEDB, HIGH);
 }
