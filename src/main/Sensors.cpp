@@ -73,6 +73,7 @@ SensorData readSensors(float deltaTime, SensorData& previousData) {
     // Read gyroscope data
     if (IMU.gyroscopeAvailable()) {
         IMU.readGyroscope(gyroX_raw, gyroY_raw, gyroZ_raw);
+        
 
         // Convert gyroscope readings to degrees per second
         data.gyroX = gyroX_raw * 180.0 / M_PI;
@@ -118,21 +119,21 @@ SensorData readSensors(float deltaTime, SensorData& previousData) {
     // Apogee detection
     if (data.rateOfChange < APOGEE_THRESHOLD) {
         Serial.println("Apogee detected!");
-        // You can add additional logic for apogee events
     }
 
     // Update previous altitude for the next iteration
     previousAltitude = data.altitude;
 
     // Debugging output
-    Serial.print("Altitude: ");
-    Serial.print(data.altitude);
-    Serial.print(" m, Rate of Climb: ");
-    Serial.println(data.rateOfChange);
+    // Serial.print("Altitude: ");
+    // Serial.print(data.altitude);
+    // Serial.print(" m, Rate of Climb: ");
+    // Serial.println(data.rateOfChange);
 
     data.timestamp = millis();
     return data;
 }
+
 
 float readAltitudeFromBMP() {
     // Check both sensors and use the one that is available
