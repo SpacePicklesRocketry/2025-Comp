@@ -6,10 +6,11 @@
 #include <BMP085.h>
 
 // Define thresholds and other parameters
-const float launch_accel_threshold;
-const float coast_accel_threshold;
-const float apogee_altitude_threshold;
+const float launch_accel_threshold = 75; // m/s^2
+const float coast_accel_threshold = 40; // m/s^2
+const float apogee_altitude_threshold = 240.792; // meters
 
+//Different flight stages
 enum FlightPhase {
     GROUND,
     POWERED_ASCENT,
@@ -19,13 +20,13 @@ enum FlightPhase {
     LANDING
 };
 
+//Using variable instead
 FlightPhase current_stage; 
 
 
-// Function prototypes
+// Functions
 void initializeSensors();
-void readSensorData(float &accel_x, float &accel_y, float &accel_z, float &altitude);
-void detectFlightPhase(float accel_x, float accel_y, float accel_z, float altitude, float current_pressure, float last_pressure, float current_phase);
+void detectFlightPhase(float accel_x, float accel_y, float accel_z, float altitude, float current_pressure, float last_pressure);
 
 
 #endif
