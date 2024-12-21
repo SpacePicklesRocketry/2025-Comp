@@ -26,18 +26,20 @@ void loop() {
 
     float accelX, accelY, accelZ;
 float gyroX, gyroY, gyroZ;
+// Serial.print("Accel (m/s^2): ");
+// Serial.print("X: "); Serial.print(currentData.accelX);
+// Serial.print(", Y: "); Serial.print(currentData.accelY);
+// Serial.print(", Z: "); Serial.println(currentData.accelZ);
 
-getRawData(accelX, accelY, accelZ, gyroX, gyroY, gyroZ);
+Serial.print("Raw Accel (m/s^2): ");
+// Serial.print("X: "); Serial.print(accelX);
+// Serial.print(", Y: "); Serial.print(accelY);
+Serial.print(", ZRAW: "); Serial.println(accelZ);
 
-Serial.print("Accel (m/s^2): ");
-Serial.print("X: "); Serial.print(accelX);
-Serial.print(", Y: "); Serial.print(accelY);
-Serial.print(", Z: "); Serial.println(accelZ);
-
-Serial.print("Gyro (deg/s): ");
-Serial.print("X: "); Serial.print(gyroX);
-Serial.print(", Y: "); Serial.print(gyroY);
-Serial.print(", Z: "); Serial.println(gyroZ);
+// Serial.print("Gyro (deg/s): ");
+// Serial.print("X: "); Serial.print(currentData.gyroX);
+// Serial.print(", Y: "); Serial.print(currentData.gyroY);
+// Serial.print(", Z: "); Serial.println(currentData.gyroZ);
 
     previousData = currentData;
     delay(100);
