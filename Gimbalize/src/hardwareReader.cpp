@@ -4,10 +4,6 @@
 #include <Adafruit_BMP085.h>
 #include <SPI.h>
 #include <SD.h>
-#include "timeSync.h"
-
-TimeSync bmpTimeSync;
-TimeSync mpuTimeSync;
 
 Adafruit_MPU6050 mpu;
 Adafruit_BMP085 bmp;
@@ -88,7 +84,7 @@ void loop() {
   lastTime = currentTime;
 
   sensors_event_t a, g, temp;
-  float reading_time = millis()
+  float reading_time = millis();
   mpu.getEvent(&a, &g, &temp);
   angleX = g.gyro.x * deltaTime * 180.0 / PI;
   angleY = g.gyro.y * deltaTime * 180.0 / PI;
@@ -128,10 +124,12 @@ void loop() {
   Serial.print(altitude);
   Serial.println(" m");
 
+  float desired_time;
+
   try {
-    desired_time = millis()
-    std::array<double, 3> BMP_interpolated_values = bmpTmeSync.getValuesAt(desired_time);
-    std::array<double, 3> MPU_interpolated_values = mpuTmeSync.getValuesAt(desired_time);
+    desired_time = millis();
+    std::array<double, 3> BMP_interpolated_values = bmpTimeSync.getValuesAt(desired_time);
+    std::array<double, 3> MPU_interpolated_values = mpuTimeSync.getValuesAt(desired_time);
     Serial.print("Interpolated Values at ");
     Serial.print(desired_time);
     Serial.print(": ");
