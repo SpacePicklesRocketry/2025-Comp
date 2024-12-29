@@ -2,30 +2,49 @@
 #include <stage_detection.h>
 #include <math.h>
 #include <MKRIMU.h>
-#include <Adafruit_BMP390.h>
+#include <Adafruit_BMP3XX.h>
 // Set Starting Phase
 current_stage = FlightPhase.GROUND;
 
-Adafruit_BMP180 bmp390;
+Adafruit_BMP3XX bmp390;
+
+#define MAIN_SENSOR_ADDR 0x77
+#define BACKUP_SENSOR_ADDR 0x76
+
+Adafruit_BMP3XX bmp390;
 
 
 // Initialize sensor
 void initializeSensors() {
   Wire.begin();
 
+  // Initialize IMU
   if (!IMU.begin()) {
     Serial.println("Failed to initialize IMU!");
     while (1) {
       delay(10);
-    }Serial.println("IMU initialized!");
+    }
+  }
+  Serial.println("IMU initialized!");
 
-  if (!bmp.begin()) {
-    Serial.println("Failed to find BMP sensor!");
+  // Check for the main BMP390 sensor
+  if (bmp390.begin_I2C(MAIN_SENSOR_ADDR)) {
+    Serial.println("Main BMP390 sensor found!");
+    active_sensor_address = MAIN_SENSOR_ADDR;
+    break;
+  }
+  // Check for the backup BMP390 sensor
+  else if (bmp390.begin_I2C(BACKUP_SENSOR_ADDR)) {
+    Serial.println("Backup BMP390 sensor found!");
+    active_sensor_address = BACKUP_SENSOR_ADDR;
+  } 
+  // No sensor found
+  else {
+    Serial.println("Failed to find any BMP390 sensor!");
     while (1) {
       delay(10);
     }
   }
-  Serial.println("BMP180 Found!");
 }
 
 // Main loop
