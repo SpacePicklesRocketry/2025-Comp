@@ -11,8 +11,6 @@ Adafruit_BMP3XX bmp390;
 #define MAIN_SENSOR_ADDR 0x77
 #define BACKUP_SENSOR_ADDR 0x76
 
-Adafruit_BMP3XX bmp390;
-
 
 // Initialize sensor
 void initializeSensors() {
