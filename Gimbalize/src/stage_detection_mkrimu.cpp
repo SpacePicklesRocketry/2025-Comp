@@ -10,6 +10,7 @@ Adafruit_BMP3XX bmp390;
 
 #define MAIN_SENSOR_ADDR 0x77
 #define BACKUP_SENSOR_ADDR 0x76
+#define LED_PIN 32
 
 
 // Initialize sensor
@@ -28,17 +29,21 @@ void initializeSensors() {
   // Check for the main BMP390 sensor
   if (bmp390.begin_I2C(MAIN_SENSOR_ADDR)) {
     Serial.println("Main BMP390 sensor found!");
-    active_sensor_address = MAIN_SENSOR_ADDR;
     break;
   }
   // Check for the backup BMP390 sensor
   else if (bmp390.begin_I2C(BACKUP_SENSOR_ADDR)) {
     Serial.println("Backup BMP390 sensor found!");
-    active_sensor_address = BACKUP_SENSOR_ADDR;
   } 
   // No sensor found
   else {
     Serial.println("Failed to find any BMP390 sensor!");
+    digitalWrite(LED_PIN, HIGH);
+    delay(1000);
+    digitalWrite(LED_PIN, LOW);
+    delay(1000);
+    digitalWrite(LED_PIN, HIGH);
+    delay(1000);
     while (1) {
       delay(10);
     }
