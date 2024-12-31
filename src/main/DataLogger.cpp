@@ -52,19 +52,20 @@ extern File dataFile; // Ensure this is declared and properly initialized in you
 void logData(const SensorData& data) {
     dataFile = SD.open("data_log.csv", FILE_WRITE); // Open the log file
     if (dataFile) {
-        dataFile.print(data.timestamp); // Log timestamp
+          
+        dataFile.print(data.timestamp);
         dataFile.print(", ");
-        dataFile.print(data.angleX);   // Log roll angle
+        dataFile.print(data.angleX);
         dataFile.print(", ");
-        dataFile.print(data.angleY);   // Log pitch angle
+        dataFile.print(data.angleY);
         dataFile.print(", ");
-        dataFile.print(data.angleZ);   // Log yaw angle
+        dataFile.print(data.angleZ);
         dataFile.print(", ");
-        dataFile.print(data.accelX);   // Log X acceleration
+        dataFile.print(data.accelX);
         dataFile.print(", ");
-        dataFile.print(data.accelY);   // Log Y acceleration
+        dataFile.print(data.accelY);
         dataFile.print(", ");
-        dataFile.print(data.accelZ);   // Log Z acceleration
+        dataFile.print(data.accelZ);
         dataFile.close();
     } else {
         Serial.println("Error opening file for writing!");
