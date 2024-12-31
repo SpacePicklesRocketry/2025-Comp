@@ -104,6 +104,10 @@ SensorData readSensors(float deltaTime, SensorData& previousData) {
     if (IMU.accelerationAvailable()){
       IMU.readAcceleration(accelX_raw, accelY_raw, accelZ_raw);
 
+      accelX_raw -= 0.006;       // Offset for X-axis
+      accelY_raw -= 0.050;      // Offset for Y-axis
+      accelZ_raw += 0.033;      // Offset for Z-axis
+
       data.accelX = (accelX_raw * 9.81);
       data.accelY = (accelY_raw * 9.81);
       data.accelZ = (accelZ_raw * 9.81);
@@ -113,6 +117,16 @@ SensorData readSensors(float deltaTime, SensorData& previousData) {
       data.accelY = previousData.accelY;
       data.accelZ = previousData.accelZ;
     }
+
+    data.velocityX = previousData.velocityX + data.accelX * deltaTime;
+    data.velocityY = previousData.velocityY + data.accelY * deltaTime;
+    data.velocityZ = previousData.velocityZ + data.accelZ * deltaTime;
+
+    data.positionX = previousData.positionX + data.velocityX * deltaTime;// + (0.5)*(data.accelX)*(deltaTime)*(deltaTime);
+    data.positionY = previousData.positionY + data.velocityY * deltaTime; // + (0.5)*(data.accelY)*(deltaTime)*(deltaTime);
+    data.positionZ = previousData.positionZ + data.velocityZ * deltaTime; // + (0.5)*(data.accelZ)*(deltaTime)*(deltaTime);
+    
+
 
 
     // if (IMU.accelerationAvailable()) {

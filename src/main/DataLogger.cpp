@@ -23,7 +23,7 @@ void createLogFile() {
     
     do {
         // Generate file name as "Int_<test_number>.txt"
-        snprintf(filename, sizeof(filename), "Int_%d.txt", test_number);
+        snprintf(filename, sizeof(filename), "Int_%d.csv", test_number);
         test_number++;
     } while (SD.exists(filename)); // Check if file exists
 
