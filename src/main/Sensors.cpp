@@ -9,24 +9,19 @@
 #define SEALEVELPRESSURE_HPA 1013.25 // Standard sea-level pressure in hPa
 #define APOGEE_THRESHOLD -0.5 // Apogee detection threshold: Negative rate of climb
 
-// Constants for velocity and motion
-#define ACCEL_THRESHOLD 0.1  // Threshold for motion detection
-#define RESET_THRESHOLD 0.05 // Velocity threshold to reset on stationary
-#define DRAG_FACTOR 0.98     // Drag factor for velocity decay
 
 Adafruit_BMP3XX bmp1;
 Adafruit_BMP3XX bmp2;
 
-SimpleKalmanFilter altitudeFilter(2.0, 2.0, 0.5); // Measurement error, Estimate error, Process noise
+SimpleKalmanFilter altitudeFilter(2.0, 2.0, 0.5);
 SimpleKalmanFilter gyroFilter(2.0, 0.1, 0.01);
 
 float previousAltitude = 0;
-float accelBaselineX = 0, accelBaselineY = 0, accelBaselineZ = GRAVITY;
 
 void initializeSensors() {
     if (!IMU.begin()) {
         Serial.println("Failed to initialize MKRIMU");
-        while (1) delay(10); // Stop on failure
+        while (1) delay(10);
     }
     Serial.println("MKRIMU Initialized");
 
@@ -47,7 +42,6 @@ void initializeSensors() {
         while (1);
     }
 
-    // Configure BMP sensors
     if (bmp1.begin_I2C(BMP1_ADDR)) {
         bmp1.setTemperatureOversampling(BMP3_OVERSAMPLING_8X);
         bmp1.setPressureOversampling(BMP3_OVERSAMPLING_4X);
@@ -77,7 +71,7 @@ SensorData readSensors(float deltaTime, SensorData& previousData) {
 
         data.angleX = roll;    // Roll
         data.angleY = pitch;   // Pitch
-        data.angleZ = yaw; // Heading (Yaw)
+        data.angleZ = yaw; // Yaw
 
     } else {
         data.angleX = previousData.angleX;
@@ -104,18 +98,17 @@ SensorData readSensors(float deltaTime, SensorData& previousData) {
     if (IMU.accelerationAvailable()){
       IMU.readAcceleration(accelX_raw, accelY_raw, accelZ_raw);
 
-      double g = 9.81;
       accelX_raw -= 0.006;       // Offset for X-axis
       accelY_raw -= 0.050;      // Offset for Y-axis
       accelZ_raw += 0.033;      // Offset for Z-axis
 
-      data.accelX = (accelX_raw * g);
-      data.accelY = (accelY_raw * g);
-      data.accelZ = (accelZ_raw * g);
+      data.accelX = (accelX_raw * GRAVITY);
+      data.accelY = (accelY_raw * GRAVITY);
+      data.accelZ = (accelZ_raw * GRAVITY);
 
-      data.accelX -= g * sin(data.angleY * M_PI / 180.0); 
-      data.accelY += g * sin(data.angleX * M_PI / 180.0);
-      data.accelZ -= g * cos(data.angleY * M_PI / 180.0) * cos(data.angleX * M_PI / 180.0);
+      data.accelX -= GRAVITY * sin(data.angleY * M_PI / 180.0);
+      data.accelY += GRAVITY * sin(data.angleX * M_PI / 180.0);
+      data.accelZ -= GRAVITY * cos(data.angleY * M_PI / 180.0) * cos(data.angleX * M_PI / 180.0);
 
     } else {
       data.accelX = previousData.accelX;
@@ -127,22 +120,19 @@ SensorData readSensors(float deltaTime, SensorData& previousData) {
     data.velocityY = previousData.velocityY + data.accelY * deltaTime;
     data.velocityZ = previousData.velocityZ + data.accelZ * deltaTime;
 
-    data.positionX = previousData.positionX + data.velocityX * deltaTime;// + (0.5)*(data.accelX)*(deltaTime)*(deltaTime);
+    data.positionX = previousData.positionX + data.velocityX * deltaTime; // + (0.5)*(data.accelX)*(deltaTime)*(deltaTime);
     data.positionY = previousData.positionY + data.velocityY * deltaTime; // + (0.5)*(data.accelY)*(deltaTime)*(deltaTime);
     data.positionZ = previousData.positionZ + data.velocityZ * deltaTime; // + (0.5)*(data.accelZ)*(deltaTime)*(deltaTime);
     
 
-    // Read altitude from BMP sensor
     float rawAltitude = readAltitudeFromBMP();
     data.altitude = altitudeFilter.updateEstimate(rawAltitude);
     data.rateOfChange = data.altitude - previousAltitude;
 
-    // Apogee detection
     if (data.rateOfChange < APOGEE_THRESHOLD) {
         Serial.println("Apogee detected!");
     }
 
-    // Update previous altitude
     previousAltitude = data.altitude;
 
     data.timestamp = millis();
@@ -156,6 +146,6 @@ float readAltitudeFromBMP() {
         return bmp2.readAltitude(SEALEVELPRESSURE_HPA);
     } else {
         Serial.println("Failed to read altitude from BMP sensors.");
-        return 0; // Default value in case of failure
+        return 0;
     }
 }

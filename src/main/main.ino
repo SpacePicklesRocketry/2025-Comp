@@ -1,15 +1,12 @@
 #include "Sensors.h"
 #include "DataLogger.h"
 
-// Global variables
 SensorData previousData = {};
 
 void setup() {
-    // Initialize serial communication
-    Serial.begin(115200);
+    Serial.begin(115200); //baud
     while (!Serial);
 
-    // Initialize sensors and SD card
     initializeSensors();
     initializeSDCard();
     createLogFile();
@@ -20,17 +17,14 @@ void setup() {
 void loop() {
     // Delta time calculation
     static unsigned long lastTime = 0;
-    if (lastTime == 0) lastTime = millis(); // Initialize on first iteration
+    if (lastTime == 0) lastTime = millis();
 
     unsigned long currentTime = millis();
-    float deltaTime = (currentTime - lastTime) * 0.001; // Convert to seconds
+    float deltaTime = (currentTime - lastTime) * 0.001;
     lastTime = currentTime;
 
-    // Read sensors and log data
     SensorData currentData = readSensors(deltaTime, previousData);
     logData(currentData);
-
-    // Debugging output
 
     // Serial.print("Accel (m/s^2): ");
     // Serial.print("X: "); Serial.print(currentData.accelX);
@@ -52,12 +46,10 @@ void loop() {
     // Serial.print(", Y: "); Serial.print(currentData.velocityY);
     // Serial.print(", Z: "); Serial.println(currentData.velocityZ);
 
-    Serial.print("Position (m): ");
-    Serial.print("X: "); Serial.print(currentData.positionX);
-    Serial.print(", Y: "); Serial.print(currentData.positionY);
-    Serial.print(", Z: "); Serial.println(currentData.positionZ);
-
-    // Update previous data for the next loop
+    // Serial.print("Position (m): ");
+    // Serial.print("X: "); Serial.print(currentData.positionX);
+    // Serial.print(", Y: "); Serial.print(currentData.positionY);
+    // Serial.print(", Z: "); Serial.println(currentData.positionZ);
 
     delay(100); // Small delay for stability
 }
