@@ -91,7 +91,7 @@ SensorData readSensors(float deltaTime, SensorData& previousData) {
       gyroX_raw -= 0;       // Offset for X-axis
       gyroY_raw -= -1;      // Offset for Y-axis
       gyroZ_raw -= -1;      // Offset for Z-axis
-
+      
       data.gyroX = gyroFilter.updateEstimate(gyroX_raw * 180.0 / M_PI);
       data.gyroY = gyroFilter.updateEstimate(gyroY_raw * 180.0 / M_PI);
       data.gyroZ = gyroFilter.updateEstimate(gyroZ_raw * 180.0 / M_PI);
@@ -104,13 +104,18 @@ SensorData readSensors(float deltaTime, SensorData& previousData) {
     if (IMU.accelerationAvailable()){
       IMU.readAcceleration(accelX_raw, accelY_raw, accelZ_raw);
 
+      double g = 9.81;
       accelX_raw -= 0.006;       // Offset for X-axis
       accelY_raw -= 0.050;      // Offset for Y-axis
       accelZ_raw += 0.033;      // Offset for Z-axis
 
-      data.accelX = (accelX_raw * 9.81);
-      data.accelY = (accelY_raw * 9.81);
-      data.accelZ = (accelZ_raw * 9.81);
+      data.accelX = (accelX_raw * g);
+      data.accelY = (accelY_raw * g);
+      data.accelZ = (accelZ_raw * g);
+
+      data.accelX -= g * sin(data.angleY * M_PI / 180.0); 
+      data.accelY += g * sin(data.angleX * M_PI / 180.0);
+      data.accelZ -= g * cos(data.angleY * M_PI / 180.0) * cos(data.angleX * M_PI / 180.0);
 
     } else {
       data.accelX = previousData.accelX;
