@@ -31,26 +31,28 @@ void loop() {
     logData(currentData);
 
     // Debugging output
-    Serial.print("Delta Time (s): ");
-    Serial.println(deltaTime);
 
     Serial.print("Accel (m/s^2): ");
     Serial.print("X: "); Serial.print(currentData.accelX);
     Serial.print(", Y: "); Serial.print(currentData.accelY);
     Serial.print(", Z: "); Serial.println(currentData.accelZ);
 
-    Serial.print("Gyro (deg/s): ");
-    Serial.print("X: "); Serial.print(currentData.gyroX);
-    Serial.print(", Y: "); Serial.print(currentData.gyroY);
-    Serial.print(", Z: "); Serial.println(currentData.gyroZ);
+    // Serial.print("Gyro (deg/s): ");
+    // Serial.print("X: "); Serial.print(currentData.gyroX);
+    // Serial.print(", Y: "); Serial.print(currentData.gyroY);
+    // Serial.print(", Z: "); Serial.println(currentData.gyroZ);
 
-    Serial.print("Position (m): ");
-    Serial.print("X: "); Serial.print(currentData.positionX);
-    Serial.print(", Y: "); Serial.print(currentData.positionY);
-    Serial.print(", Z: "); Serial.println(currentData.positionZ);
+    // Serial.print("Angle (deg): ");
+    // Serial.print("X: "); Serial.print(currentData.angleX);
+    // Serial.print(", Y: "); Serial.print(currentData.angleY);
+    // Serial.print(", Z: "); Serial.println(currentData.angleZ);
+
+    // Serial.print("Position (m): ");
+    // Serial.print("X: "); Serial.print(currentData.positionX);
+    // Serial.print(", Y: "); Serial.print(currentData.positionY);
+    // Serial.print(", Z: "); Serial.println(currentData.positionZ);
 
     // Update previous data for the next loop
-    previousData = currentData;
 
     delay(100); // Small delay for stability
 }
