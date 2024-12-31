@@ -127,67 +127,20 @@ SensorData readSensors(float deltaTime, SensorData& previousData) {
     data.positionZ = previousData.positionZ + data.velocityZ * deltaTime; // + (0.5)*(data.accelZ)*(deltaTime)*(deltaTime);
     
 
+    // Read altitude from BMP sensor
+    float rawAltitude = readAltitudeFromBMP();
+    data.altitude = altitudeFilter.updateEstimate(rawAltitude);
+    data.rateOfChange = data.altitude - previousAltitude;
 
+    // Apogee detection
+    if (data.rateOfChange < APOGEE_THRESHOLD) {
+        Serial.println("Apogee detected!");
+    }
 
-    // if (IMU.accelerationAvailable()) {
-    //     IMU.readAcceleration(accelX_raw, accelY_raw, accelZ_raw);
+    // Update previous altitude
+    previousAltitude = data.altitude;
 
-    //     // Subtract baseline and apply threshold
-    //     float accelX_filtered = accelX_raw - accelBaselineX;
-    //     float accelY_filtered = accelY_raw - accelBaselineY;
-    //     float accelZ_filtered = accelZ_raw - accelBaselineZ;
-
-    //     if (fabs(accelX_filtered) < ACCEL_THRESHOLD) accelX_filtered = 0;
-    //     if (fabs(accelY_filtered) < ACCEL_THRESHOLD) accelY_filtered = 0;
-    //     if (fabs(accelZ_filtered) < ACCEL_THRESHOLD) accelZ_filtered = 0;
-
-    //     // Update data fields
-    //     data.accelX = accelX_filtered * GRAVITY;
-    //     data.accelY = accelY_filtered * GRAVITY;
-    //     data.accelZ = accelZ_filtered * GRAVITY;
-
-    //     // Integrate acceleration to velocity
-    //     if (fabs(data.accelX) > RESET_THRESHOLD || fabs(data.accelY) > RESET_THRESHOLD || fabs(data.accelZ) > RESET_THRESHOLD) {
-    //         data.velocityX = previousData.velocityX + data.accelX * deltaTime;
-    //         data.velocityY = previousData.velocityY + data.accelY * deltaTime;
-    //         data.velocityZ = previousData.velocityZ + data.accelZ * deltaTime;
-    //     } else {
-    //         data.velocityX = 0;
-    //         data.velocityY = 0;
-    //         data.velocityZ = 0;
-    //     }
-
-    //     // Apply drag to reduce drift
-    //     data.velocityX *= DRAG_FACTOR;
-    //     data.velocityY *= DRAG_FACTOR;
-    //     data.velocityZ *= DRAG_FACTOR;
-
-    //     // Integrate velocity to calculate position
-    //     data.positionX = previousData.positionX + data.velocityX * deltaTime;
-    //     data.positionY = previousData.positionY + data.velocityY * deltaTime;
-    //     data.positionZ = previousData.positionZ + data.velocityZ * deltaTime;
-
-    //     // Debugging output
-    //     Serial.print("Velocity X: ");
-    //     Serial.println(data.velocityX);
-    //     Serial.print("Position X: ");
-    //     Serial.println(data.positionX);
-    // }
-
-    // // Read altitude from BMP sensor
-    // float rawAltitude = readAltitudeFromBMP();
-    // data.altitude = altitudeFilter.updateEstimate(rawAltitude);
-    // data.rateOfChange = data.altitude - previousAltitude;
-
-    // // Apogee detection
-    // if (data.rateOfChange < APOGEE_THRESHOLD) {
-    //     Serial.println("Apogee detected!");
-    // }
-
-    // // Update previous altitude
-    // previousAltitude = data.altitude;
-
-    // data.timestamp = millis();
+    data.timestamp = millis();
     return data;
 }
 
