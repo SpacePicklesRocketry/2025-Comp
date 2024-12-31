@@ -4,7 +4,6 @@
 #include <Adafruit_BMP3XX.h>
 #include <SimpleKalmanFilter.h>
 
-// Constants for BMP sensors
 #define BMP1_ADDR 0x76 // Address of the first BMP390
 #define BMP2_ADDR 0x77 // Address of the second BMP390
 #define SEALEVELPRESSURE_HPA 1013.25 // Standard sea-level pressure in hPa
@@ -15,27 +14,22 @@
 #define RESET_THRESHOLD 0.05 // Velocity threshold to reset on stationary
 #define DRAG_FACTOR 0.98     // Drag factor for velocity decay
 
-// Instances for BMP sensors
 Adafruit_BMP3XX bmp1;
 Adafruit_BMP3XX bmp2;
 
-// Define Kalman filter for altitude
 SimpleKalmanFilter altitudeFilter(2.0, 2.0, 0.5); // Measurement error, Estimate error, Process noise
 SimpleKalmanFilter gyroFilter(2.0, 0.1, 0.01);
-SimpleKalmanFilter accelFilter(2.0, 0.1, 0.01);
 
-// Variables for altitude and rate of climb
 float previousAltitude = 0;
 float accelBaselineX = 0, accelBaselineY = 0, accelBaselineZ = GRAVITY;
 
 void initializeSensors() {
     if (!IMU.begin()) {
         Serial.println("Failed to initialize MKRIMU");
-        while (1) delay(10); // Halt on failure
+        while (1) delay(10); // Stop on failure
     }
     Serial.println("MKRIMU Initialized");
 
-    // Initialize BMP sensors
     if (!bmp1.begin_I2C(BMP1_ADDR)) {
         Serial.println("Sensor 1 not found at address 0x76");
     } else {
@@ -78,18 +72,14 @@ SensorData readSensors(float deltaTime, SensorData& previousData) {
     float accelX_raw, accelY_raw, accelZ_raw;
     float gyroX_raw, gyroY_raw, gyroZ_raw;
 
-    // Check if Euler angles are available
     if (IMU.eulerAnglesAvailable()) {
-        // Read Euler angles directly from the IMU
         IMU.readEulerAngles(yaw, roll, pitch);
 
-        // Store the Euler angles into the SensorData structure
         data.angleX = roll;    // Roll
         data.angleY = pitch;   // Pitch
         data.angleZ = yaw; // Heading (Yaw)
 
     } else {
-        // Fallback to previous data if Euler angles are not available
         data.angleX = previousData.angleX;
         data.angleY = previousData.angleY;
         data.angleZ = previousData.angleZ;
@@ -114,9 +104,9 @@ SensorData readSensors(float deltaTime, SensorData& previousData) {
     if (IMU.accelerationAvailable()){
       IMU.readAcceleration(accelX_raw, accelY_raw, accelZ_raw);
 
-      data.accelX = accelFilter.updateEstimate(accelX_raw * 9.81);
-      data.accelY = accelFilter.updateEstimate(accelY_raw * 9.81);
-      data.accelZ = accelFilter.updateEstimate(accelZ_raw * 9.81);
+      data.accelX = (accelX_raw * 9.81);
+      data.accelY = (accelY_raw * 9.81);
+      data.accelZ = (accelZ_raw * 9.81);
 
     } else {
       data.accelX = previousData.accelX;
