@@ -1,6 +1,7 @@
 # **TARC-2024-Public**
 
 Welcome to the official code repository for **Space Pickles**, a student-driven rocketry team based in **Fremont, California**, with members primarily from **American High School**.
+
 ![image](https://github.com/user-attachments/assets/37b6efee-77e0-403f-8f94-fd2e68476cfa)
 
 ---
