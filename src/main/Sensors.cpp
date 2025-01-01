@@ -5,21 +5,20 @@
 #include <Wire.h>
 #include <SimpleKalmanFilter.h>
 
-#define BMP_ADDR 0x77               // Address of the BMP390 sensor
-#define SEALEVELPRESSURE_HPA 1022   // Adjust for launch location
-#define APOGEE_THRESHOLD -0.5       // Threshold for detecting apogee
+#define BMP_ADDR 0x77
+#define SEALEVELPRESSURE_HPA 1022   // TODO ADJUST
+#define APOGEE_THRESHOLD -0.5
 
-Adafruit_BMP3XX bmp;               // BMP390 sensor instance
+Adafruit_BMP3XX bmp;
 SimpleKalmanFilter altitudeFilter(2.0, 2.0, 0.5);
 SimpleKalmanFilter gyroFilter(2.0, 0.1, 0.01);
 
 float previousAltitude = 0;
-bool bmpWorking = true;            // Tracks whether the sensor is functional
+bool bmpWorking = true;
 
 void initializeSensors() {
     Wire.begin();
 
-    // Initialize MKRIMU
     if (!IMU.begin()) {
         Serial.println("Failed to initialize MKRIMU");
         while (1) delay(10);
@@ -127,14 +126,14 @@ float readAltitude() {
             Serial.println("BMP390 reinitialized successfully.");
         } else {
             Serial.println("ERROR: Reinitialization failed. Sensor may be disconnected.");
-            return -1; // Indicate failure
+            return -1;
         }
     }
 
     if (!bmp.performReading()) {
         Serial.println("ERROR: Failed to read from BMP390 sensor.");
         bmpWorking = false;
-        return -1; // Indicate failure
+        return -1;
     }
 
     return bmp.readAltitude(SEALEVELPRESSURE_HPA);
