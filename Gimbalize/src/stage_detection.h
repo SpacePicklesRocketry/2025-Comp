@@ -26,7 +26,7 @@ FlightPhase current_stage;
 
 // Functions
 void initializeSensors();
-void detectFlightPhase(float accel_x, float accel_y, float accel_z, float altitude, float current_pressure, float last_pressure);
+void detectFlightPhase(float accel_x, float accel_y, float accel_z, float altitude, long current_pressure, long last_pressure);
 
 
 #endif

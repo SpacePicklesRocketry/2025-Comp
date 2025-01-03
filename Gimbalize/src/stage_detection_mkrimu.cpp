@@ -4,14 +4,9 @@
 #include <MKRIMU.h>
 #include <Adafruit_BMP3XX.h>
 // Set Starting Phase
-current_stage = FlightPhase.GROUND;
+FlightPhase current_stage = FlightPhase.GROUND;
 
 Adafruit_BMP3XX bmp390;
-
-#define MAIN_SENSOR_ADDR 0x77
-#define BACKUP_SENSOR_ADDR 0x76
-#define LED_PIN 32
-
 
 // Initialize sensor
 void initializeSensors() {
@@ -26,32 +21,22 @@ void initializeSensors() {
   }
   Serial.println("IMU initialized!");
 
-  // Check for the main BMP390 sensor
-  if (bmp390.begin_I2C(MAIN_SENSOR_ADDR)) {
-    Serial.println("Main BMP390 sensor found!");
-    break;
-  }
-  // Check for the backup BMP390 sensor
-  else if (bmp390.begin_I2C(BACKUP_SENSOR_ADDR)) {
-    Serial.println("Backup BMP390 sensor found!");
-  } 
-  // No sensor found
-  else {
-    Serial.println("Failed to find any BMP390 sensor!");
-    digitalWrite(LED_PIN, HIGH);
-    delay(1000);
-    digitalWrite(LED_PIN, LOW);
-    delay(1000);
-    digitalWrite(LED_PIN, HIGH);
-    delay(1000);
-    while (1) {
+  if (!bmp390.begin_I2C()) {
+    Serial.println("Could not find a valid BMP390 sensor, check wiring!");
+    while (1){
       delay(10);
     }
   }
+  Serial.println("BMP390 initialized!");
 }
 
 // Main loop
-void detectFlightPhase_mkrimu(float accel_x, float accel_y, float accel_z, float altitude, float current_pressure, float last_pressure){
+void detectFlightPhase(float accel_x, float accel_y, float accel_z, float altitude, float current_pressure, float last_pressure){
+  static unsigned long lastRun = 0;
+  unsigned long currentRun = millis();
+  // Delay for sensor readings
+  if(currentRun - lastRun >= 100){ 
+    lastRun = currentRun;
 
     // Read acceleration data from MPU6050
     IMU.readAcceleration(accel_x, accel_y, accel_z);
@@ -88,7 +73,5 @@ void detectFlightPhase_mkrimu(float accel_x, float accel_y, float accel_z, float
 
     lastPressure = currentPressure;
     currentPressure = bmp390.readPressure()/100 //hectopascals
-
-    // Delay for sensor readings
-    delay(100); 
+}
 }
