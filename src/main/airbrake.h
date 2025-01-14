@@ -10,7 +10,7 @@ const int alt_threshold; //Meters
 bool airbrake_deployed;
 
 const int airbrake_open;
-const int airbrake_closed;
+const int airbrake_close;
 
 openAirbrake(bool &airbrake_deployed);
 closeAirbrake(bool &airbrake_deployed);
