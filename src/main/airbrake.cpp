@@ -25,6 +25,8 @@ void openAirbrake(bool &airbrake_deployed){
         servo1.write(airbrake_open);
         servo2.write(airbrake_open);
         airbrake_deployed = true;
+    } else {
+        airbrake_deployed = false;
     }
 }
 
@@ -33,6 +35,8 @@ void closeAirbrake(bool &airbrake_deployed){
         servo1.write(airbrake_close);
         servo2.write(airbrake_close);
         airbrake_deployed = false;
+    } else {
+        airbrake_deployed = true;
     }
 }
 
