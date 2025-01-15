@@ -37,10 +37,10 @@ void initializeSensors() {
         Serial.println("Sensor 2 initialized at address 0x77");
     }
 
-    if (!bmp1.begin_I2C(BMP1_ADDR) && !bmp2.begin_I2C(BMP2_ADDR)) {
-        Serial.println("Both BMP sensors failed to initialize. Check wiring.");
-        while (1);
-    }
+    // if (!bmp1.begin_I2C(BMP1_ADDR) && !bmp2.begin_I2C(BMP2_ADDR)) {
+    //     Serial.println("Both BMP sensors failed to initialize. Check wiring.");
+    //     while (1);
+    // }
 
     if (bmp1.begin_I2C(BMP1_ADDR)) {
         bmp1.setTemperatureOversampling(BMP3_OVERSAMPLING_8X);
@@ -98,17 +98,21 @@ SensorData readSensors(float deltaTime, SensorData& previousData) {
     if (IMU.accelerationAvailable()){
       IMU.readAcceleration(accelX_raw, accelY_raw, accelZ_raw);
 
-      accelX_raw -= 0.006;       // Offset for X-axis
-      accelY_raw -= 0.050;      // Offset for Y-axis
-      accelZ_raw += 0.033;      // Offset for Z-axis
+      // accelX_raw += 0.05;       // Offset for X-axis
+      // accelY_raw += 0.99;      // Offset for Y-axis
+      // accelZ_raw += 0.005;      // Offset for Z-axis
 
       data.accelX = (accelX_raw * GRAVITY);
       data.accelY = (accelY_raw * GRAVITY);
       data.accelZ = (accelZ_raw * GRAVITY);
 
-      data.accelX -= GRAVITY * sin(data.angleY * M_PI / 180.0);
-      data.accelY += GRAVITY * sin(data.angleX * M_PI / 180.0);
-      data.accelZ -= GRAVITY * cos(data.angleY * M_PI / 180.0) * cos(data.angleX * M_PI / 180.0);
+      // data.accelX += GRAVITY * cos(data.angleY * M_PI / 180.0); 
+      // data.accelZ += GRAVITY * cos(data.angleX * M_PI / 180.0);
+      // data.accelY -= GRAVITY *  (sin(data.angleY * M_PI / 180.0)  + sin(data.angleX * M_PI / 180.0));
+
+      data.accelX -= GRAVITY * sin(data.angleX * M_PI / 180.0) * cos(data.angleY * M_PI / 180.0);
+      data.accelY += GRAVITY * sin(data.angleY * M_PI / 180.0);
+      data.accelZ -= GRAVITY * cos(data.angleZ * M_PI / 180.0) * cos(data.angleY * M_PI / 180.0);
 
     } else {
       data.accelX = previousData.accelX;
@@ -145,7 +149,7 @@ float readAltitudeFromBMP() {
     } else if (bmp2.performReading()) {
         return bmp2.readAltitude(SEALEVELPRESSURE_HPA);
     } else {
-        Serial.println("Failed to read altitude from BMP sensors.");
+        // Serial.println("Failed to read altitude from BMP sensors.");
         return 0;
     }
 }
