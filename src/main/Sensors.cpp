@@ -149,3 +149,16 @@ float readAltitudeFromBMP() {
         return 0;
     }
 }
+
+bool checkStageSepetation() {
+    if (analogRead(21)>500){
+        return false;
+    }
+    else if (analogRead(21)<200){
+        return true;
+    }
+    else{
+        Serial.println("Flaky connection check stage sensor");
+        return false;
+    }
+}
