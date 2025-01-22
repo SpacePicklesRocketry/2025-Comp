@@ -106,16 +106,13 @@ SensorData readSensors(float deltaTime, SensorData& previousData) {
       data.accelY = (accelY_raw * GRAVITY);
       data.accelZ = (accelZ_raw * GRAVITY);
 
-      // data.accelX += GRAVITY * cos(data.angleY * M_PI / 180.0); 
-      // data.accelZ += GRAVITY * cos(data.angleX * M_PI / 180.0);
-      // data.accelY -= GRAVITY *  (sin(data.angleY * M_PI / 180.0)  + sin(data.angleX * M_PI / 180.0));
-
+      // new gravity math - Raghav
       data.accelX -= GRAVITY * sin(data.angleX * M_PI / 180.0) * cos(data.angleY * M_PI / 180.0);
       data.accelY += GRAVITY * sin(data.angleY * M_PI / 180.0);
       data.accelZ -= GRAVITY * cos(data.angleZ * M_PI / 180.0) * cos(data.angleY * M_PI / 180.0);
 
     } else {
-      data.accelX = previousData.accelX;
+      data.accelX = previousData.accelX;git 
       data.accelY = previousData.accelY;
       data.accelZ = previousData.accelZ;
     }
