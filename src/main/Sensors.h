@@ -9,7 +9,7 @@ struct SensorData {
     unsigned long timestamp;
     float accelX, accelY, accelZ;  // Acceleration (m/s^2)
     float gyroX, gyroY, gyroZ;    // Angular velocity (deg/s)
-    float angleX, angleY, angleZ; // Roll, pitch, yaw (degrees)
+    float roll, pitch, yaw; // Roll, pitch, yaw (degrees)
     float velocityX, velocityY, velocityZ; // Velocity (m/s)
     float positionX, positionY, positionZ; // Position (m)
     float altitude; // Altitude (m)

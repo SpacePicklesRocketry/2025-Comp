@@ -55,11 +55,11 @@ void logData(const SensorData& data) {
           
         dataFile.print(data.timestamp);
         dataFile.print(", ");
-        dataFile.print(data.angleX);
+        dataFile.print(data.roll);
         dataFile.print(", ");
-        dataFile.print(data.angleY);
+        dataFile.print(data.pitch);
         dataFile.print(", ");
-        dataFile.print(data.angleZ);
+        dataFile.print(data.yaw);
         dataFile.print(", ");
         dataFile.print(data.accelX);
         dataFile.print(", ");

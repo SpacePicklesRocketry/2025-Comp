@@ -26,10 +26,10 @@ void loop() {
     SensorData currentData = readSensors(deltaTime, previousData);
     logData(currentData);
 
-    // Serial.print("Accel (m/s^2): ");
-    // Serial.print("X: "); Serial.print(currentData.accelX);
-    // Serial.print(", Y: "); Serial.print(currentData.accelY);
-    // Serial.print(", Z: "); Serial.println(currentData.accelZ);
+    Serial.print("Accel (m/s^2): ");
+    Serial.print("X: "); Serial.print(currentData.accelX);
+    Serial.print(", Y: "); Serial.print(currentData.accelY);
+    Serial.print(", Z: "); Serial.println(currentData.accelZ);
 
     // Serial.print("Gyro (deg/s): ");
     // Serial.print("X: "); Serial.print(currentData.gyroX);
@@ -37,9 +37,9 @@ void loop() {
     // Serial.print(", Z: "); Serial.println(currentData.gyroZ);
 
     // Serial.print("Angle (deg): ");
-    // Serial.print("X: "); Serial.print(currentData.angleX);
-    // Serial.print(", Y: "); Serial.print(currentData.angleY);
-    // Serial.print(", Z: "); Serial.println(currentData.angleZ);
+    // Serial.print("Roll: "); Serial.print(currentData.roll);
+    // Serial.print(", Pitch: "); Serial.print(currentData.pitch);
+    // Serial.print(", Yaw: "); Serial.println(currentData.yaw);
 
     // Serial.print("Speed (m/s: ");
     // Serial.print("X: "); Serial.print(currentData.velocityX);
