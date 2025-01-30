@@ -2,29 +2,39 @@
 #include <MKRIMU.h>
 #include <math.h>
 #include <Adafruit_BMP3XX.h>
+#include <Adafruit_BNO055.h>
 #include <SimpleKalmanFilter.h>
 
+// Constants
 #define BMP1_ADDR 0x76 // Address of the first BMP390
 #define BMP2_ADDR 0x77 // Address of the second BMP390
 #define SEALEVELPRESSURE_HPA 1013.25 // Standard sea-level pressure in hPa
 #define APOGEE_THRESHOLD -0.5 // Apogee detection threshold: Negative rate of climb
+#define GRAVITY 9.8 // Acceleration due to gravity (m/s^2)
 
-
+// Sensor instances
 Adafruit_BMP3XX bmp1;
 Adafruit_BMP3XX bmp2;
+Adafruit_BNO055 bno = Adafruit_BNO055(55);
 
+// Filters
 SimpleKalmanFilter altitudeFilter(2.0, 2.0, 0.5);
 SimpleKalmanFilter gyroFilter(2.0, 0.1, 0.01);
 
+// Globals
 float previousAltitude = 0;
+float initialRoll = 0, initialPitch = 0, initialYaw = 0; // Store initial orientation for reference
 
+// Initialize sensors
 void initializeSensors() {
-    if (!IMU.begin()) {
-        Serial.println("Failed to initialize MKRIMU");
+    // Initialize IMU
+    if (!bno.begin()) {
+        Serial.println("Failed to initialize BNO055");
         while (1) delay(10);
     }
-    Serial.println("MKRIMU Initialized");
+    Serial.println("BNO055 Initialized");
 
+    // Initialize BMP sensors
     if (!bmp1.begin_I2C(BMP1_ADDR)) {
         Serial.println("Sensor 1 not found at address 0x76");
     } else {
@@ -37,11 +47,7 @@ void initializeSensors() {
         Serial.println("Sensor 2 initialized at address 0x77");
     }
 
-    if (!bmp1.begin_I2C(BMP1_ADDR) && !bmp2.begin_I2C(BMP2_ADDR)) {
-        Serial.println("Both BMP sensors failed to initialize. Check wiring.");
-        while (1);
-    }
-
+    // Configure BMP sensors
     if (bmp1.begin_I2C(BMP1_ADDR)) {
         bmp1.setTemperatureOversampling(BMP3_OVERSAMPLING_8X);
         bmp1.setPressureOversampling(BMP3_OVERSAMPLING_4X);
@@ -56,78 +62,51 @@ void initializeSensors() {
         bmp2.setOutputDataRate(BMP3_ODR_50_HZ);
     }
 
+    // Store initial IMU orientation
+    imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
+    initialRoll = euler.x();
+    initialPitch = euler.y();
+    initialYaw = euler.z();
+
     Serial.println("Initialization complete.");
 }
 
-SensorData readSensors(float deltaTime, SensorData& previousData) {
+// Read sensor data
+SensorData readSensors(float deltaTime, SensorData &previousData) {
     SensorData data;
 
-    float yaw, roll, pitch;
-    float accelX_raw, accelY_raw, accelZ_raw;
-    float gyroX_raw, gyroY_raw, gyroZ_raw;
+    // Read Euler angles
+    imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
+    data.roll = euler.x() - initialRoll;
+    data.pitch = euler.y() - initialPitch;
+    data.yaw = euler.z() - initialYaw;
 
-    if (IMU.eulerAnglesAvailable()) {
-        IMU.readEulerAngles(yaw, roll, pitch);
+    // Read Gyroscope data
+    imu::Vector<3> gyro = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
+    data.gyroX = gyroFilter.updateEstimate(gyro.x());
+    data.gyroY = gyroFilter.updateEstimate(gyro.y());
+    data.gyroZ = gyroFilter.updateEstimate(gyro.z());
 
-        data.angleX = roll;    // Roll
-        data.angleY = pitch;   // Pitch
-        data.angleZ = yaw; // Yaw
+    // Read Gravity-compensated linear acceleration
+    imu::Vector<3> linAccel = bno.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
+    data.accelX = linAccel.x();
+    data.accelY = linAccel.y();
+    data.accelZ = linAccel.z();
 
-    } else {
-        data.angleX = previousData.angleX;
-        data.angleY = previousData.angleY;
-        data.angleZ = previousData.angleZ;
-    }
-
-    if (IMU.gyroscopeAvailable()){
-      IMU.readGyroscope(gyroX_raw, gyroY_raw, gyroZ_raw);
-
-      gyroX_raw -= 0;       // Offset for X-axis
-      gyroY_raw -= -1;      // Offset for Y-axis
-      gyroZ_raw -= -1;      // Offset for Z-axis
-      
-      data.gyroX = gyroFilter.updateEstimate(gyroX_raw * 180.0 / M_PI);
-      data.gyroY = gyroFilter.updateEstimate(gyroY_raw * 180.0 / M_PI);
-      data.gyroZ = gyroFilter.updateEstimate(gyroZ_raw * 180.0 / M_PI);
-    } else {
-      data.gyroX = previousData.gyroX;
-      data.gyroY = previousData.gyroY;
-      data.gyroZ = previousData.gyroZ;
-    }
-
-    if (IMU.accelerationAvailable()){
-      IMU.readAcceleration(accelX_raw, accelY_raw, accelZ_raw);
-
-      accelX_raw -= 0.006;       // Offset for X-axis
-      accelY_raw -= 0.050;      // Offset for Y-axis
-      accelZ_raw += 0.033;      // Offset for Z-axis
-
-      data.accelX = (accelX_raw * GRAVITY);
-      data.accelY = (accelY_raw * GRAVITY);
-      data.accelZ = (accelZ_raw * GRAVITY);
-
-      data.accelX -= GRAVITY * sin(data.angleY * M_PI / 180.0);
-      data.accelY += GRAVITY * sin(data.angleX * M_PI / 180.0);
-      data.accelZ -= GRAVITY * cos(data.angleY * M_PI / 180.0) * cos(data.angleX * M_PI / 180.0);
-
-    } else {
-      data.accelX = previousData.accelX;
-      data.accelY = previousData.accelY;
-      data.accelZ = previousData.accelZ;
-    }
-
+    // Velocity integration
     data.velocityX = previousData.velocityX + data.accelX * deltaTime;
     data.velocityY = previousData.velocityY + data.accelY * deltaTime;
     data.velocityZ = previousData.velocityZ + data.accelZ * deltaTime;
 
-    data.positionX = previousData.positionX + data.velocityX * deltaTime; // + (0.5)*(data.accelX)*(deltaTime)*(deltaTime);
-    data.positionY = previousData.positionY + data.velocityY * deltaTime; // + (0.5)*(data.accelY)*(deltaTime)*(deltaTime);
-    data.positionZ = previousData.positionZ + data.velocityZ * deltaTime; // + (0.5)*(data.accelZ)*(deltaTime)*(deltaTime);
-    
+    // Position integration
+    data.positionX = previousData.positionX + data.velocityX * deltaTime;
+    data.positionY = previousData.positionY + data.velocityY * deltaTime;
+    data.positionZ = previousData.positionZ + data.velocityZ * deltaTime;
 
+    // Altitude and apogee detection
     float rawAltitude = readAltitudeFromBMP();
     data.altitude = altitudeFilter.updateEstimate(rawAltitude);
-    data.rateOfChange = data.altitude - previousAltitude;
+    data.rateOfChange = (data.altitude - previousAltitude) / deltaTime; // Proper rate of climb
 
     if (data.rateOfChange < APOGEE_THRESHOLD) {
         Serial.println("Apogee detected!");
@@ -139,14 +118,14 @@ SensorData readSensors(float deltaTime, SensorData& previousData) {
     return data;
 }
 
+// Read altitude from BMP sensors
 float readAltitudeFromBMP() {
     if (bmp1.performReading()) {
         return bmp1.readAltitude(SEALEVELPRESSURE_HPA);
     } else if (bmp2.performReading()) {
         return bmp2.readAltitude(SEALEVELPRESSURE_HPA);
     } else {
-        Serial.println("Failed to read altitude from BMP sensors.");
-        return 0;
+        return 0; // Fallback if both sensors fail
     }
 }
 
