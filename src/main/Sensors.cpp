@@ -126,7 +126,7 @@ float readAltitudeFromBMP() {
         return bmp2.readAltitude(SEALEVELPRESSURE_HPA);
     } else {
         return 0; // Fallback if both sensors fail
-    }
+        }
 }
 
 bool checkStageSepetation() {
