@@ -25,6 +25,8 @@ SimpleKalmanFilter gyroFilter(2.0, 0.1, 0.01);
 float previousAltitude = 0;
 float initialRoll = 0, initialPitch = 0, initialYaw = 0; // Store initial orientation for reference
 
+unsigned long initialTime;
+
 // Initialize sensors
 void initializeSensors() {
     // Initialize IMU
@@ -67,6 +69,8 @@ void initializeSensors() {
     initialRoll = euler.x();
     initialPitch = euler.y();
     initialYaw = euler.z();
+
+    initialTime = millis();
 
     Serial.println("Initialization complete.");
 }
@@ -114,7 +118,7 @@ SensorData readSensors(float deltaTime, SensorData &previousData) {
 
     previousAltitude = data.altitude;
 
-    data.timestamp = millis();
+    data.timestamp = millis() - initialTime;
     return data;
 }
 
