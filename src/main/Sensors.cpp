@@ -16,6 +16,9 @@ SimpleKalmanFilter gyroFilter(2.0, 0.1, 0.01);
 float previousAltitude = 0;
 bool bmpWorking = true;
 
+void configureBMP();
+float readAltitude();
+
 void initializeSensors() {
     Wire.begin();
 
