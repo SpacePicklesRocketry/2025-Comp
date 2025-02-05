@@ -5,14 +5,12 @@
 #include <Adafruit_BNO055.h>
 #include <SimpleKalmanFilter.h>
 
-// Constants
-#define BMP1_ADDR 0x76 // Address of the first BMP390
-#define BMP2_ADDR 0x77 // Address of the second BMP390
-#define SEALEVELPRESSURE_HPA 1013.25 // Standard sea-level pressure in hPa
-#define APOGEE_THRESHOLD -0.5 // Apogee detection threshold: Negative rate of climb
-#define GRAVITY 9.8 // Acceleration due to gravity (m/s^2)
+#define BMP1_ADDR 0x76                // Address of the first BMP390
+#define BMP2_ADDR 0x77                // Address of the second BMP390
+#define SEALEVELPRESSURE_HPA 1013.25  // Standard sea-level pressure in hPa
+#define APOGEE_THRESHOLD -0.5         // Apogee detection threshold: Negative rate of climb
+#define GRAVITY 9.8                   // Acceleration due to gravity (m/s^2)
 
-// Sensor instances
 Adafruit_BMP3XX bmp1;
 Adafruit_BMP3XX bmp2;
 Adafruit_BNO055 bno = Adafruit_BNO055(55);
@@ -23,121 +21,103 @@ SimpleKalmanFilter gyroFilter(2.0, 0.1, 0.01);
 
 // Globals
 float previousAltitude = 0;
-float initialRoll = 0, initialPitch = 0, initialYaw = 0; // Store initial orientation for reference
+float initialRoll = 0, initialPitch = 0, initialYaw = 0;  // Store initial orientation for reference
 
-// Initialize sensors
+unsigned long initialTime;
+
 void initializeSensors() {
-    // Initialize IMU
-    if (!bno.begin()) {
-        Serial.println("Failed to initialize BNO055");
-        while (1) delay(10);
-    }
-    Serial.println("BNO055 Initialized");
+  // Initialize IMU
+  if (!bno.begin()) {
+    Serial.println("Failed to initialize BNO055");
+    while (1) delay(10);
+  }
+  Serial.println("BNO055 Initialized");
 
-    // Initialize BMP sensors
-    if (!bmp1.begin_I2C(BMP1_ADDR)) {
-        Serial.println("Sensor 1 not found at address 0x76");
-    } else {
-        Serial.println("Sensor 1 initialized at address 0x76");
-    }
+  // Initialize BMP sensors
+  if (!bmp1.begin_I2C(BMP1_ADDR)) {
+    Serial.println("Sensor 1 not found at address 0x76");
+  } else {
+    Serial.println("Sensor 1 initialized at address 0x76");
+  }
 
-    if (!bmp2.begin_I2C(BMP2_ADDR)) {
-        Serial.println("Sensor 2 not found at address 0x77");
-    } else {
-        Serial.println("Sensor 2 initialized at address 0x77");
-    }
+  if (!bmp2.begin_I2C(BMP2_ADDR)) {
+    Serial.println("Sensor 2 not found at address 0x77");
+  } else {
+    Serial.println("Sensor 2 initialized at address 0x77");
+  }
 
-    // Configure BMP sensors
-    if (bmp1.begin_I2C(BMP1_ADDR)) {
-        bmp1.setTemperatureOversampling(BMP3_OVERSAMPLING_8X);
-        bmp1.setPressureOversampling(BMP3_OVERSAMPLING_4X);
-        bmp1.setIIRFilterCoeff(BMP3_IIR_FILTER_COEFF_3);
-        bmp1.setOutputDataRate(BMP3_ODR_50_HZ);
-    }
+  // Configure BMP sensors
+  if (bmp1.begin_I2C(BMP1_ADDR)) {
+    bmp1.setTemperatureOversampling(BMP3_OVERSAMPLING_8X);
+    bmp1.setPressureOversampling(BMP3_OVERSAMPLING_4X);
+    bmp1.setIIRFilterCoeff(BMP3_IIR_FILTER_COEFF_3);
+    bmp1.setOutputDataRate(BMP3_ODR_50_HZ);
+  }
 
-    if (bmp2.begin_I2C(BMP2_ADDR)) {
-        bmp2.setTemperatureOversampling(BMP3_OVERSAMPLING_8X);
-        bmp2.setPressureOversampling(BMP3_OVERSAMPLING_4X);
-        bmp2.setIIRFilterCoeff(BMP3_IIR_FILTER_COEFF_3);
-        bmp2.setOutputDataRate(BMP3_ODR_50_HZ);
-    }
+  if (bmp2.begin_I2C(BMP2_ADDR)) {
+    bmp2.setTemperatureOversampling(BMP3_OVERSAMPLING_8X);
+    bmp2.setPressureOversampling(BMP3_OVERSAMPLING_4X);
+    bmp2.setIIRFilterCoeff(BMP3_IIR_FILTER_COEFF_3);
+    bmp2.setOutputDataRate(BMP3_ODR_50_HZ);
+  }
 
-    // Store initial IMU orientation
-    imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
-    initialRoll = euler.x();
-    initialPitch = euler.y();
-    initialYaw = euler.z();
+  // Store initial IMU orientation
+  imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
+  initialRoll = euler.x();
+  initialPitch = euler.y();
+  initialYaw = euler.z();
 
-    Serial.println("Initialization complete.");
+  initialTime = millis();
+
+  Serial.println("Initialization complete.");
 }
 
-// Read sensor data
 SensorData readSensors(float deltaTime, SensorData &previousData) {
-    SensorData data;
+  SensorData data;
 
-    // Read Euler angles
-    imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
-    data.roll = euler.x() - initialRoll;
-    data.pitch = euler.y() - initialPitch;
-    data.yaw = euler.z() - initialYaw;
+  imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
+  data.roll = euler.x() - initialRoll;
+  data.pitch = euler.y() - initialPitch;
+  data.yaw = euler.z() - initialYaw;
 
-    // Read Gyroscope data
-    imu::Vector<3> gyro = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
-    data.gyroX = gyroFilter.updateEstimate(gyro.x());
-    data.gyroY = gyroFilter.updateEstimate(gyro.y());
-    data.gyroZ = gyroFilter.updateEstimate(gyro.z());
+  imu::Vector<3> gyro = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
+  data.gyroX = gyroFilter.updateEstimate(gyro.x());
+  data.gyroY = gyroFilter.updateEstimate(gyro.y());
+  data.gyroZ = gyroFilter.updateEstimate(gyro.z());
 
-    // Read Gravity-compensated linear acceleration
-    imu::Vector<3> linAccel = bno.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
-    data.accelX = linAccel.x();
-    data.accelY = linAccel.y();
-    data.accelZ = linAccel.z();
+  imu::Vector<3> linAccel = bno.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
+  data.accelX = linAccel.x();
+  data.accelY = linAccel.y();
+  data.accelZ = linAccel.z();
 
-    // Velocity integration
-    data.velocityX = previousData.velocityX + data.accelX * deltaTime;
-    data.velocityY = previousData.velocityY + data.accelY * deltaTime;
-    data.velocityZ = previousData.velocityZ + data.accelZ * deltaTime;
+  data.velocityX = previousData.velocityX + data.accelX * deltaTime;
+  data.velocityY = previousData.velocityY + data.accelY * deltaTime;
+  data.velocityZ = previousData.velocityZ + data.accelZ * deltaTime;
 
-    // Position integration
-    data.positionX = previousData.positionX + data.velocityX * deltaTime;
-    data.positionY = previousData.positionY + data.velocityY * deltaTime;
-    data.positionZ = previousData.positionZ + data.velocityZ * deltaTime;
+  data.positionX = previousData.positionX + data.velocityX * deltaTime;
+  data.positionY = previousData.positionY + data.velocityY * deltaTime;
+  data.positionZ = previousData.positionZ + data.velocityZ * deltaTime;
 
-    // Altitude and apogee detection
-    float rawAltitude = readAltitudeFromBMP();
-    data.altitude = altitudeFilter.updateEstimate(rawAltitude);
-    data.rateOfChange = (data.altitude - previousAltitude) / deltaTime; // Proper rate of climb
+  float rawAltitude = readAltitudeFromBMP();
+  data.altitude = altitudeFilter.updateEstimate(rawAltitude);
+  data.rateOfChange = (data.altitude - previousAltitude) / deltaTime;  // Proper rate of climb
 
-    if (data.rateOfChange < APOGEE_THRESHOLD) {
-        Serial.println("Apogee detected!");
-    }
+  if (data.rateOfChange < APOGEE_THRESHOLD) {
+    Serial.println("Apogee detected!");
+  }
 
-    previousAltitude = data.altitude;
+  previousAltitude = data.altitude;
 
-    data.timestamp = millis();
-    return data;
+  data.timestamp = millis() - initialTime;
+  return data;
 }
 
-// Read altitude from BMP sensors
 float readAltitudeFromBMP() {
-    if (bmp1.performReading()) {
-        return bmp1.readAltitude(SEALEVELPRESSURE_HPA);
-    } else if (bmp2.performReading()) {
-        return bmp2.readAltitude(SEALEVELPRESSURE_HPA);
-    } else {
-        return 0; // Fallback if both sensors fail
-    }
-}
-
-bool checkStageSepetation() {
-    if (analogRead(21)>500){
-        return false;
-    }
-    else if (analogRead(21)<200){
-        return true;
-    }
-    else{
-        Serial.println("Flaky connection check stage sensor");
-        return false;
-    }
+  if (bmp1.performReading()) {
+    return bmp1.readAltitude(SEALEVELPRESSURE_HPA);
+  } else if (bmp2.performReading()) {
+    return bmp2.readAltitude(SEALEVELPRESSURE_HPA);
+  } else {
+    return 0;  // Fallback if both sensors fail
+  }
 }
