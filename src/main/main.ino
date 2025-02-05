@@ -15,15 +15,12 @@ void setup() {
 }
 
 void loop() {
-    // Delta time calculation
     static unsigned long lastTime = 0;
     if (lastTime == 0) lastTime = millis();
 
     unsigned long currentTime = millis();
     float deltaTime = (currentTime - lastTime) * 0.001;
     lastTime = currentTime;
-    Serial.print("Delta Time: ");
-    Serial.print(deltaTime);
 
     SensorData currentData = readSensors(deltaTime, previousData);
     logData(currentData);
