@@ -2,15 +2,6 @@
 #include <Sensors.cpp>
 #include <Servo.h>
 
-Servo airbrakeServo;
-
-const int airbrakePin = 8; //TODO
-altitudeThreshold = 182.88; //Meters - CHANGE TO CORRECT THRESHOLD!!! 182.88 meters = 600 feet
-
-airbrakeDeployed = false;
-
-const int airbrakeOpen = 150; //TODO
-const int airbrakeClose = -3; //TODO
 
 void initializeAirbrake(){
     airbrakeServo.attach(airbrakePin);
