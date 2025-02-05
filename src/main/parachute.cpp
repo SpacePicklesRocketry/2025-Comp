@@ -17,34 +17,34 @@ bool doorOpened = false;
 int doorOpen = 150; //CHANGE TO CORRECT ANGLE!!!
 int closeServos = -2;
 
-void setup(){
+void initializeParachute(){
     doorServo.attach(doorServoPin);
     initializeSensors();
     doorServo.write(closeServos);
 }
 
-void deploy_parachute(bool altitude_passed, bool parachute_deployed){
-    if(altitude_passed == false && altitude >= altThreshold){
-        altitude_passed = true;
-        if (altitude_passed == true && altitude <= altThreshold && doorOpened == false){
-            door_servo.write(door_open);
-            parachute_deployed = true;
+void deploy_parachute(bool altitudePassed, bool parachuteDeployed){
+    if(altitudePassed == false && altitude >= altThreshold){
+        altitudePassed = true;
+        if (altitudePassed == true && altitude <= altThreshold && doorOpened == false){
+            doorServo.write(door_open);
+            parachuteDeployed = true;
             delay(3000);
         } else{
-            parachute_deployed = false;
+            parachuteDeployed = false;
         }
     } else {
-        altitude_passed = false;
+        altitudePassed = false;
     }
 }
 
-void close_parachute_servo(bool altitude_passed, bool parachute_deployed){
-    if(parachute_deployed == true && altitude <= altThreshold){
+void close_parachute_servo(bool altitudePassed, bool parachuteDeployed){
+    if(parachuteDeployed == true && altitude <= altThreshold){
         door_servo.write(closeServos);;
-        parachute_deployed = false;
-        altitude_passed = false;
+        parachuteDeployed = false;
+        altitudePassed = false;
     } else {
-        parachute_deployed = true;
-        altitude_passed = true;
+        parachuteDeployed = true;
+        altitudePassed = true;
     }
 }
