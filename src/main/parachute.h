@@ -5,7 +5,7 @@
 #include <Sensors.cpp>
 
 void initializeParachute();
-void deployParachute(bool altitudePassed, bool doorOpened);
-void closeParachuteServo(bool altitudePassed, bool doorOpened);
+void deployParachute(bool altitudePassed, bool doorOpened, float currentAltitude);
+void closeParachuteServo(bool altitudePassed, bool doorOpened, float currentAltitude);
 
 #endif

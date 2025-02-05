@@ -23,7 +23,7 @@ void initializeParachute(){
     doorServo.write(closeServos);
 }
 
-void deploy_parachute(bool altitudePassed, bool parachuteDeployed){
+void deploy_parachute(bool altitudePassed, bool parachuteDeployed, float currentAltitude){
     if(altitudePassed == false && altitude >= altThreshold){
         altitudePassed = true;
         if (altitudePassed == true && altitude <= altThreshold && doorOpened == false){
@@ -38,7 +38,7 @@ void deploy_parachute(bool altitudePassed, bool parachuteDeployed){
     }
 }
 
-void close_parachute_servo(bool altitudePassed, bool parachuteDeployed){
+void close_parachute_servo(bool altitudePassed, bool parachuteDeployed, float currentAltitude){
     if(parachuteDeployed == true && altitude <= altThreshold){
         door_servo.write(closeServos);;
         parachuteDeployed = false;
