@@ -1,5 +1,6 @@
 #include "Sensors.h"
 #include "DataLogger.h"
+#include "Airbrake.h"
 
 SensorData previousData = {};
 
@@ -8,6 +9,7 @@ void setup() {
     while (!Serial);
 
     initializeSensors();
+    initializeAirbrake();
     initializeSDCard();
     createLogFile();
 
