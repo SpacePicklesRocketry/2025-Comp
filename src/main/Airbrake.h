@@ -4,12 +4,8 @@
 #include <Servo.h>
 #include <Sensors.cpp>
 
-const int altitudeThreshold; //Meters
-bool airbrakeDeployed;
-
 void initializeAirbrake();
-
-openAirbrake(bool airbrakeDeployed);
-closeAirbrake(bool airbrakeDeployed);
+void openAirbrake(bool airbrakeDeployed);
+void closeAirbrake(bool airbrakeDeployed);
 
 #endif

@@ -1,15 +1,26 @@
-#include <airbrake.h>
+#include <Airbrake.h>
 #include <Sensors.cpp>
 #include <Servo.h>
+
+Servo airbrakeServo;
+int airbrakePin = 9; // CHANGE TO CORRECT PIN!!!
+int airbrakeOpen = 180; // CHANGE TO CORRECT ANGLE!!!
+int airbrakeClose = -2; // CHANGE TO CORRECT ANGLE!!!
+int altitudeThreshold = 182.88; //Meters - CHANGE TO CORRECT THRESHOLD!!! 182.88 meters = 600 feet
+
+bool airbrakeDeployed = false;
+
+float currentAltitude = readAltitudeFromBMP();
+
 
 
 void initializeAirbrake(){
     airbrakeServo.attach(airbrakePin);
-    airbrakeServo.write(airbrake_close);
+    airbrakeServo.write(airbrakeClose);
 }
 
-void openAirbrake(bool &airbrake_deployed){
-    if (readAltitudeFromBMP() >= altitudeThreshold && airbrake_deployed == false){
+void openAirbrake(bool airbrakeDeployed, float currentAltitude){
+    if (currentAltitude >= altitudeThreshold && airbrakeDeployed == false){
         airbrakeServo.write(airbrakeOpen);
         airbrakeDeployed = true;
     } else {
@@ -17,8 +28,8 @@ void openAirbrake(bool &airbrake_deployed){
     }
 }
 
-void closeAirbrake(bool &airbrake_deployed){
-    if (readAltitudeFromBMP() < altitudeThreshold && airbrakeDeployed == true){
+void closeAirbrake(bool airbrakeDeployed, float currentAltitude){
+    if (currentAltitude <= altitudeThreshold && airbrakeDeployed == true){
         airbrakeServo.write(airbrakeClose);
         airbrakeDeployed = false;
     } else {
