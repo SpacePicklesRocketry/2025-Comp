@@ -19,7 +19,7 @@ void initializeAirbrake(){
     airbrakeServo.write(airbrakeClose);
 }
 
-void openAirbrake(bool airbrakeDeployed, float currentAltitude){
+void openAirbrake(){
     if (currentAltitude >= altitudeThreshold && airbrakeDeployed == false){
         airbrakeServo.write(airbrakeOpen);
         airbrakeDeployed = true;
@@ -28,7 +28,7 @@ void openAirbrake(bool airbrakeDeployed, float currentAltitude){
     }
 }
 
-void closeAirbrake(bool airbrakeDeployed, float currentAltitude){
+void closeAirbrake(){
     if (currentAltitude <= altitudeThreshold && airbrakeDeployed == true){
         airbrakeServo.write(airbrakeClose);
         airbrakeDeployed = false;

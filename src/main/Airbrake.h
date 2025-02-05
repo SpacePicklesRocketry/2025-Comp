@@ -5,7 +5,7 @@
 #include <Sensors.cpp>
 
 void initializeAirbrake();
-void openAirbrake(bool airbrakeDeployed, float currentAltitude);
-void closeAirbrake(bool airbrakeDeployed, float currentAltitude);
+void openAirbrake();
+void closeAirbrake();
 
 #endif
