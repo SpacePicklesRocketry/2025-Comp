@@ -3,48 +3,45 @@
 #include <Sensors.cpp>
 
 Servo doorServo;
-Servo parachuteServo;
 
 int doorServoPin = 10; //TODO: CHANGE TO CORRECT PIN!!!
-int parachuteServoPin = 11; //CHANGE TO CORRECT PIN!!!
 float altThreshold = 182.88; //Meters - CHANGE TO CORRECT THRESHOLD!!! 182.88 meters = 600 feet
 
 float altitude = readAltitudeFromBMP();
-bool altitudePassed = false;
-bool parachuteDeployed = false;
+
+bool altitudePassed = false
 bool doorOpened = false;
 
-int doorOpen = 150; //CHANGE TO CORRECT ANGLE!!!
-int closeServos = -2;
+int openDoorServo = 150; //CHANGE TO CORRECT ANGLE!!!
+int closeDoorServo = -2;
 
 void initializeParachute(){
     doorServo.attach(doorServoPin);
     initializeSensors();
-    doorServo.write(closeServos);
+    doorServo.write(closeDoorServo);
 }
 
-void deploy_parachute(){
+void deployParachute(){
     if(altitudePassed == false && altitude >= altThreshold){
         altitudePassed = true;
-        if (altitudePassed == true && altitude <= altThreshold && doorOpened == false){
-            doorServo.write(door_open);
-            parachuteDeployed = true;
-            delay(3000);
-        } else{
-            parachuteDeployed = false;
-        }
     } else {
         altitudePassed = false;
     }
+    if (altitudePassed == true && altitude <= altThreshold && doorOpened == false){
+        doorServo.write(openDoorServo);
+        doorOpened = true;
+        delay(3000);
+    } else{
+        doorOpened = false;
+        }
 }
 
-void close_parachute_servo(){
-    if(parachuteDeployed == true && altitude <= altThreshold){
-        door_servo.write(closeServos);;
-        parachuteDeployed = false;
+void closeParachuteServo(){
+    if(doorOpened == true && altitude <= altThreshold){
+        doorServo.write(closeDoorServo);
+        doorOpened = false;
         altitudePassed = false;
-    } else {
-        parachuteDeployed = true;
+    } else 
         altitudePassed = true;
     }
 }
