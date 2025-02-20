@@ -8,8 +8,6 @@
 #define BMP1_ADDR 0x76                // Address of the first BMP390
 #define BMP2_ADDR 0x77                // Address of the second BMP390
 #define SEALEVELPRESSURE_HPA 1013.25  // Standard sea-level pressure in hPa
-#define APOGEE_THRESHOLD -0.5         // Apogee detection threshold: Negative rate of climb
-#define GRAVITY 9.8                   // Acceleration due to gravity (m/s^2)
 
 Adafruit_BMP3XX bmp1;
 Adafruit_BMP3XX bmp2;
@@ -100,14 +98,19 @@ SensorData readSensors(float deltaTime, SensorData &previousData) {
 
   float rawAltitude = readAltitudeFromBMP();
   data.altitude = altitudeFilter.updateEstimate(rawAltitude);
-  data.rateOfChange = (data.altitude - previousAltitude) / deltaTime;  // Proper rate of climb
 
-  if (data.rateOfChange < APOGEE_THRESHOLD) {
-    Serial.println("Apogee detected!");
+  // Check for liftoff
+  if (!previousData.liftoffDetected && (data.accelZ > LIFTOFF_ACCELERATION_THRESHOLD)) {
+    data.liftoffDetected = true;
+    data.liftoffTime = millis();
+    Serial.print("Liftoff detected! LiftTime: ");
+    Serial.println(data.liftoffTime);
+  } else {
+    data.liftoffDetected = previousData.liftoffDetected;
+    data.liftoffTime = previousData.liftoffTime;
   }
 
   previousAltitude = data.altitude;
-
   data.timestamp = millis() - initialTime;
   return data;
 }

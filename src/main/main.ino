@@ -1,13 +1,20 @@
 #include "Sensors.h"
 #include "DataLogger.h"
+#include "Airbrake.h"
 
 SensorData previousData = {};
 
 void setup() {
-    Serial.begin(115200); //baud
+    Serial.begin(115200);
     while (!Serial);
 
+    unsigned long startTime = millis();
+    Serial.print("Program Start Time: ");
+    Serial.println(startTime);
+
     initializeSensors();
+    initializeAirbrake();
+    setDeploymentDelay(5);
     initializeSDCard();
     createLogFile();
 
@@ -15,6 +22,7 @@ void setup() {
 }
 
 void loop() {
+    // Delta time calculation
     static unsigned long lastTime = 0;
     if (lastTime == 0) lastTime = millis();
 
@@ -23,12 +31,27 @@ void loop() {
     lastTime = currentTime;
 
     SensorData currentData = readSensors(deltaTime, previousData);
+    
+    updateAirbrake(currentData); // Now passing sensor data to airbrake
     logData(currentData);
 
-//     Serial.print("Accel (m/s^2): ");
-//     Serial.print("X: "); Serial.print(currentData.accelX);
-//     Serial.print(", Y: "); Serial.print(currentData.accelY);
-//     Serial.print(", Z: "); Serial.println(currentData.accelZ);
+    if (currentData.liftoffDetected && !previousData.liftoffDetected) { 
+        Serial.print("Liftoff detected! LiftTime: ");
+        Serial.println(currentData.liftoffTime);
+    }
+
+    previousData = currentData;
+
+
+    // if (currentData.liftoffDetected) { 
+    //     Serial.print("Liftoff detected! LiftTime: ");
+    //     Serial.println(currentData.liftoffTime);
+    // }
+
+    // Serial.print("Accel (m/s^2): ");
+    // Serial.print("X: "); Serial.print(currentData.accelX);
+    // Serial.print(", Y: "); Serial.print(currentData.accelY);
+    // Serial.print(", Z: "); Serial.println(currentData.accelZ);
 
     // Serial.print("Gyro (deg/s): ");
     // Serial.print("X: "); Serial.print(currentData.gyroX);

@@ -4,6 +4,7 @@
 #include <SimpleKalmanFilter.h>
 
 #define GRAVITY 9.81
+#define LIFTOFF_ACCELERATION_THRESHOLD 2 // Adjust based on testing
 
 struct SensorData {
     unsigned long timestamp;
@@ -13,10 +14,11 @@ struct SensorData {
     float velocityX, velocityY, velocityZ; // Velocity (m/s)
     float positionX, positionY, positionZ; // Position (m)
     float altitude; // Altitude (m)
-    float rateOfChange;
+    bool liftoffDetected; // Flag for liftoff detection
+    unsigned long liftoffTime; // Timestamp of liftoff
 };
 
-// m_ea, e_ea, q
+// Kalman Filters
 extern SimpleKalmanFilter altitudeFilter;
 extern SimpleKalmanFilter gyroFilter;
 
@@ -24,4 +26,4 @@ void initializeSensors();
 SensorData readSensors(float deltaTime, SensorData& previousData);
 float readAltitudeFromBMP();
 
-#endif
+#endif 
