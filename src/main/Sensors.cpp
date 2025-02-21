@@ -3,25 +3,31 @@
 #include <math.h>
 #include <Adafruit_BMP3XX.h>
 #include <Adafruit_BNO055.h>
-#include <SimpleKalmanFilter.h>
 
 #define BMP1_ADDR 0x76                // Address of the first BMP390
 #define BMP2_ADDR 0x77                // Address of the second BMP390
-#define SEALEVELPRESSURE_HPA 1013.25  // Standard sea-level pressure in hPa
+#define SEALEVELPRESSURE_HPA 1019     // Standard sea-level pressure in hPa
+#define APOGEE_DETECTION_THRESHOLD -0.5  // m/s, threshold for apogee detection
+#define MOVING_AVG_WINDOW 10          // Number of samples for moving average
 
 Adafruit_BMP3XX bmp1;
 Adafruit_BMP3XX bmp2;
 Adafruit_BNO055 bno = Adafruit_BNO055(55);
 
-// Filters
-SimpleKalmanFilter altitudeFilter(2.0, 2.0, 0.5);
-SimpleKalmanFilter gyroFilter(2.0, 0.1, 0.01);
-
 // Globals
 float previousAltitude = 0;
-float initialRoll = 0, initialPitch = 0, initialYaw = 0;  // Store initial orientation for reference
-
+float baseAltitude = 0;  
+bool altitudeZeroed = false;  
+float initialRoll = 0, initialPitch = 0, initialYaw = 0;
 unsigned long initialTime;
+
+// Moving average buffer for altitude
+float altitudeHistory[MOVING_AVG_WINDOW] = {0};
+int altitudeIndex = 0;
+bool bufferFilled = false;
+
+// **Function Prototype**
+float computeMovingAverage(float newAltitude);
 
 void initializeSensors() {
     // Initialize IMU
@@ -59,6 +65,22 @@ void initializeSensors() {
         bmp2.setOutputDataRate(BMP3_ODR_50_HZ);
     }
 
+    delay(2000); // Allow sensors to stabilize
+
+    // **Discard the first few readings**
+    float stableAltitude = 0;
+    for (int i = 0; i < 5; i++) {
+        stableAltitude = readAltitudeFromBMP();
+        Serial.print("Discarding altitude sample: ");
+        Serial.println(stableAltitude, 2);
+        delay(200);
+    }
+
+    // Set baseline altitude
+    baseAltitude = readAltitudeFromBMP();
+    Serial.print("Base altitude set to: ");
+    Serial.println(baseAltitude, 2);
+
     // Store initial IMU orientation
     imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
     initialRoll = euler.x();
@@ -79,9 +101,9 @@ SensorData readSensors(float deltaTime, SensorData &previousData) {
     data.yaw = euler.z() - initialYaw;
 
     imu::Vector<3> gyro = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
-    data.gyroX = gyroFilter.updateEstimate(gyro.x());
-    data.gyroY = gyroFilter.updateEstimate(gyro.y());
-    data.gyroZ = gyroFilter.updateEstimate(gyro.z());
+    data.gyroX = gyro.x();
+    data.gyroY = gyro.y();
+    data.gyroZ = gyro.z();
 
     imu::Vector<3> linAccel = bno.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
     data.accelX = linAccel.x();
@@ -96,10 +118,13 @@ SensorData readSensors(float deltaTime, SensorData &previousData) {
     data.positionY = previousData.positionY + data.velocityY * deltaTime;
     data.positionZ = previousData.positionZ + data.velocityZ * deltaTime;
 
+    // Read altitude, apply moving average filter
     float rawAltitude = readAltitudeFromBMP();
-    data.altitude = altitudeFilter.updateEstimate(rawAltitude);
-    data.rateOfChange = (data.altitude - previousAltitude) / deltaTime; // Calculate altitude change rate
+    data.altitude = (rawAltitude - baseAltitude);
+    //data.altitude = computeMovingAverage(rawAltitude - baseAltitude);
+    data.rateOfChange = (data.altitude - previousAltitude) / deltaTime;
 
+    // Liftoff detection
     if (!previousData.liftoffDetected && (data.accelZ > LIFTOFF_ACCELERATION_THRESHOLD)) {
         data.liftoffDetected = true;
         data.liftoffTime = millis();
@@ -110,6 +135,7 @@ SensorData readSensors(float deltaTime, SensorData &previousData) {
         data.liftoffTime = previousData.liftoffTime;
     }
 
+    // Apogee detection (only after liftoff)
     if (data.liftoffDetected && !previousData.apogeeDetected && data.rateOfChange < APOGEE_DETECTION_THRESHOLD) {
         data.apogeeDetected = true;
         data.apogeeTime = millis();
@@ -133,4 +159,21 @@ float readAltitudeFromBMP() {
     } else {
         return 0;  // Fallback if both sensors fail
     }
+}
+
+// **Moving Average Filter for Altitude**
+float computeMovingAverage(float newAltitude) {
+    altitudeHistory[altitudeIndex] = newAltitude;
+    altitudeIndex = (altitudeIndex + 1) % MOVING_AVG_WINDOW;
+
+    if (!bufferFilled && altitudeIndex == 0) {
+        bufferFilled = true;  // Flag when buffer is full
+    }
+
+    float sum = 0;
+    int count = bufferFilled ? MOVING_AVG_WINDOW : altitudeIndex;
+    for (int i = 0; i < count; i++) {
+        sum += altitudeHistory[i];
+    }
+    return sum / count;
 }

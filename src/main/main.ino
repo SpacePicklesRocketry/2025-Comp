@@ -46,7 +46,7 @@ void loop() {
 
     previousData = currentData;
 
-    Serial.println(currentData.rateOfChange);
+    Serial.println(currentData.altitude);
     // Serial.print(currentData.apogeeDetected);
     // if (currentData.apogeeDetected){
     //   Serial.println(currentData.apogeeTime);
