@@ -28,7 +28,7 @@ void updateAirbrake(const SensorData& sensorData) {
     }
 }
 
-void setDeploymentDelay(float delaySeconds) {
+void setDeploymentDelayAirbrake(float delaySeconds) {
     deploymentOffset = static_cast<unsigned long>(delaySeconds * 1000);
 }
 

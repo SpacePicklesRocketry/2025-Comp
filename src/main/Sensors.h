@@ -4,7 +4,8 @@
 #include <SimpleKalmanFilter.h>
 
 #define GRAVITY 9.81
-#define LIFTOFF_ACCELERATION_THRESHOLD 2 // Adjust based on testing
+#define LIFTOFF_ACCELERATION_THRESHOLD 2 // TODO
+#define APOGEE_DETECTION_THRESHOLD 0.011 //TODO
 
 struct SensorData {
     unsigned long timestamp;
@@ -16,6 +17,9 @@ struct SensorData {
     float altitude; // Altitude (m)
     bool liftoffDetected; // Flag for liftoff detection
     unsigned long liftoffTime; // Timestamp of liftoff
+    bool apogeeDetected; // Flag for apogee detection
+    unsigned long apogeeTime; // Timestamp of apogee
+    float rateOfChange;  //(m/s)
 };
 
 // Kalman Filters

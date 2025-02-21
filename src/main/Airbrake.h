@@ -13,7 +13,7 @@ extern AirbrakeStatus airbrakeStatus;
 
 void initializeAirbrake();
 void updateAirbrake(const SensorData& sensorData); 
-void setDeploymentDelay(float delaySeconds); 
+void setDeploymentDelayAirbrake(float delaySeconds); 
 void deployAirbrakes();
 
 #endif 

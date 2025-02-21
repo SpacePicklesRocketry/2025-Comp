@@ -1,6 +1,7 @@
 #include "Sensors.h"
 #include "DataLogger.h"
 #include "Airbrake.h"
+#include "Parachute.h"
 
 SensorData previousData = {};
 
@@ -14,7 +15,9 @@ void setup() {
 
     initializeSensors();
     initializeAirbrake();
-    setDeploymentDelay(5);
+    setDeploymentDelayAirbrake(5);
+    initializeParachute();
+    setDeploymentDelayParachute(0);
     initializeSDCard();
     createLogFile();
 
@@ -32,7 +35,8 @@ void loop() {
 
     SensorData currentData = readSensors(deltaTime, previousData);
     
-    updateAirbrake(currentData); // Now passing sensor data to airbrake
+    updateAirbrake(currentData);
+    updateParachute(currentData);
     logData(currentData);
 
     if (currentData.liftoffDetected && !previousData.liftoffDetected) { 
@@ -42,6 +46,11 @@ void loop() {
 
     previousData = currentData;
 
+    Serial.println(currentData.rateOfChange);
+    // Serial.print(currentData.apogeeDetected);
+    // if (currentData.apogeeDetected){
+    //   Serial.println(currentData.apogeeTime);
+    // }
 
     // if (currentData.liftoffDetected) { 
     //     Serial.print("Liftoff detected! LiftTime: ");
