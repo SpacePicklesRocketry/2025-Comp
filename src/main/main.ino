@@ -1,7 +1,7 @@
 #include "Sensors.h"
 #include "DataLogger.h"
-#include "Airbrake.h"
-#include "Parachute.h"
+// #include "Airbrake.h"
+// #include "Parachute.h"
 
 SensorData previousData = {};
 
@@ -10,18 +10,18 @@ void setup() {
     while (!Serial);
 
     unsigned long startTime = millis();
-    Serial.print("Program Start Time: ");
-    Serial.println(startTime);
+    // Serial.print("Program Start Time: ");
+    // Serial.println(startTime);
 
     initializeSensors();
-    initializeAirbrake();
-    setDeploymentDelayAirbrake(5);
-    initializeParachute();
-    setDeploymentDelayParachute(0);
+    // initializeAirbrake();
+    // setDeploymentDelayAirbrake(5);
+//     initializeParachute();
+//     setDeploymentDelayParachute(0);
     initializeSDCard();
     createLogFile();
 
-    Serial.println("System Initialized");
+    // Serial.println("System Initialized");
 }
 
 void loop() {
@@ -35,14 +35,9 @@ void loop() {
 
     SensorData currentData = readSensors(deltaTime, previousData);
     
-    updateAirbrake(currentData);
-    updateParachute(currentData);
+    // updateAirbrake(currentData);
+//     updateParachute(currentData);
     logData(currentData);
-
-    if (currentData.liftoffDetected && !previousData.liftoffDetected) { 
-        Serial.print("Liftoff detected! LiftTime: ");
-        Serial.println(currentData.liftoffTime);
-    }
 
     previousData = currentData;
 

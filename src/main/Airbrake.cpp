@@ -2,9 +2,9 @@
 #include "Sensors.h"
 #include <Servo.h>
 
-#define AIRBRAKE_SERVO_PIN 9 //TODO
-#define AIRBRAKE_FLUSH_ANGLE 0  // flush
-#define AIRBRAKE_DEPLOY_ANGLE 90  // deploy
+#define AIRBRAKE_SERVO_PIN 5 //TODO
+#define AIRBRAKE_FLUSH_ANGLE 100  // flush
+#define AIRBRAKE_DEPLOY_ANGLE 0  // deploy
 
 static unsigned long deploymentOffset = 0; 
 AirbrakeStatus airbrakeStatus = { false };
