@@ -5,7 +5,7 @@
 
 #define GRAVITY 9.81
 #define LIFTOFF_ACCELERATION_THRESHOLD 30 // TODO
-#define APOGEE_DETECTION_THRESHOLD 2 //TODO
+#define APOGEE_DETECTION_THRESHOLD 1 //TODO
 
 struct SensorData {
     unsigned long timestamp;

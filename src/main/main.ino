@@ -10,14 +10,16 @@ void setup() {
     while (!Serial);
 
     unsigned long startTime = millis();
-    // Serial.print("Program Start Time: ");
-    // Serial.println(startTime);
+    Serial.print("Program Start Time: ");
+    Serial.println(startTime);
 
     initializeSensors();
-    // initializeAirbrake();
-    // setDeploymentDelayAirbrake(5);
+    initializeAirbrake();
+    setDeploymentDelayAirbrake(10);
 //     initializeParachute();
 //     setDeploymentDelayParachute(0);
+
+  
     initializeSDCard();
     createLogFile();
 
@@ -35,13 +37,15 @@ void loop() {
 
     SensorData currentData = readSensors(deltaTime, previousData);
     
-    // updateAirbrake(currentData);
+    updateAirbrake(currentData);
 //     updateParachute(currentData);
     logData(currentData);
-
+ 
     previousData = currentData;
 
-    Serial.println(currentData.altitude);
+    
+    // Serial.println(currentData.altitude);
+    // Serial.println(currentData.rateOfChange);
     // Serial.print(currentData.apogeeDetected);
     // if (currentData.apogeeDetected){
     //   Serial.println(currentData.apogeeTime);

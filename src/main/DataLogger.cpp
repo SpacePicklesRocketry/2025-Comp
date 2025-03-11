@@ -29,7 +29,7 @@ void createLogFile() {
 
     dataFile = SD.open(filename, FILE_WRITE);
     if (dataFile) {
-        // Write header row
+        // Write header row 
         dataFile.println("Time, Roll, Pitch, Yaw, AccelX, AccelY, AccelZ, Altitude, Liftoff, Apogee");
         dataFile.close();
         Serial.print("Log file created: ");

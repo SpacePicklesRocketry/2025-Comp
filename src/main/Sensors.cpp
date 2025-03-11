@@ -4,13 +4,13 @@
 #include <Adafruit_BMP3XX.h>
 #include <Adafruit_BNO055.h>
 
-#define BMP1_ADDR 0x76                // Address of the first BMP390
+// #define BMP1_ADDR 0x76                // Address of the first BMP390
 #define BMP2_ADDR 0x77                // Address of the second BMP390
 #define SEALEVELPRESSURE_HPA 1019     // Standard sea-level pressure in hPa
 #define APOGEE_DETECTION_THRESHOLD -0.5  // m/s, threshold for apogee detection
 #define MOVING_AVG_WINDOW 10          // Number of samples for moving average
 
-Adafruit_BMP3XX bmp1;
+// Adafruit_BMP3XX bmp1;
 Adafruit_BMP3XX bmp2;
 Adafruit_BNO055 bno = Adafruit_BNO055(55);
 
@@ -38,11 +38,11 @@ void initializeSensors() {
     Serial.println("BNO055 Initialized");
 
     // Initialize BMP sensors
-    if (!bmp1.begin_I2C(BMP1_ADDR)) {
-        Serial.println("Sensor 1 not found at address 0x76");
-    } else {
-        Serial.println("Sensor 1 initialized at address 0x76");
-    }
+    // if (!bmp1.begin_I2C(BMP1_ADDR)) {
+    //     Serial.println("Sensor 1 not found at address 0x76");
+    // } else {
+    //     Serial.println("Sensor 1 initialized at address 0x76");
+    // }
 
     if (!bmp2.begin_I2C(BMP2_ADDR)) {
         Serial.println("Sensor 2 not found at address 0x77");
@@ -50,13 +50,13 @@ void initializeSensors() {
         Serial.println("Sensor 2 initialized at address 0x77");
     }
 
-    // Configure BMP sensors
-    if (bmp1.begin_I2C(BMP1_ADDR)) {
-        bmp1.setTemperatureOversampling(BMP3_OVERSAMPLING_8X);
-        bmp1.setPressureOversampling(BMP3_OVERSAMPLING_4X);
-        bmp1.setIIRFilterCoeff(BMP3_IIR_FILTER_COEFF_3);
-        bmp1.setOutputDataRate(BMP3_ODR_50_HZ);
-    }
+    // // Configure BMP sensors
+    // if (bmp1.begin_I2C(BMP1_ADDR)) {
+    //     bmp1.setTemperatureOversampling(BMP3_OVERSAMPLING_8X);
+    //     bmp1.setPressureOversampling(BMP3_OVERSAMPLING_4X);
+    //     bmp1.setIIRFilterCoeff(BMP3_IIR_FILTER_COEFF_3);
+    //     bmp1.setOutputDataRate(BMP3_ODR_50_HZ);
+    // }
 
     if (bmp2.begin_I2C(BMP2_ADDR)) {
         bmp2.setTemperatureOversampling(BMP3_OVERSAMPLING_8X);
@@ -136,7 +136,7 @@ SensorData readSensors(float deltaTime, SensorData &previousData) {
     }
 
     // Apogee detection (only after liftoff)
-    if (data.liftoffDetected && !previousData.apogeeDetected && data.rateOfChange < APOGEE_DETECTION_THRESHOLD) {
+    if (data.liftoffDetected && !previousData.apogeeDetected && (data.rateOfChange < APOGEE_DETECTION_THRESHOLD)) {
         data.apogeeDetected = true;
         data.apogeeTime = millis();
         Serial.print("Apogee detected! Apogee Time: ");
@@ -152,12 +152,18 @@ SensorData readSensors(float deltaTime, SensorData &previousData) {
 }
 
 float readAltitudeFromBMP() {
-    if (bmp1.performReading()) {
-        return bmp1.readAltitude(SEALEVELPRESSURE_HPA);
-    } else if (bmp2.performReading()) {
-        return bmp2.readAltitude(SEALEVELPRESSURE_HPA);
+    // if (bmp1.performReading()) {
+    //     return bmp1.readAltitude(SEALEVELPRESSURE_HPA);
+    // } else if (bmp2.performReading()) {
+    //     return bmp2.readAltitude(SEALEVELPRESSURE_HPA);
+    // } else {
+    //     return 0;  // Fallback if both sensors fail
+    // }
+
+    if(bmp2.performReading()){
+      return bmp2.readAltitude(SEALEVELPRESSURE_HPA);
     } else {
-        return 0;  // Fallback if both sensors fail
+      return 0;
     }
 }
 
