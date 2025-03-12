@@ -28,7 +28,8 @@ extern SimpleKalmanFilter gyroFilter;
 enum MotorType {
     F26,
     F15,
-    F44
+    F44,
+    F32
 };
 
 //Motor type global

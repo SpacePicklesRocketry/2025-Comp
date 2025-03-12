@@ -31,16 +31,20 @@ float APOGEE_DETECTION_THRESHOLD = 0;
 void thresholdConfig(MotorType motor){
     switch(motor){
         case F26:
-            LIFTOFF_ACCELERATION_THRESHOLD = 33;
+            LIFTOFF_ACCELERATION_THRESHOLD = 40;
             APOGEE_DETECTION_THRESHOLD = 0.7;
             break;
         case F15:
-            LIFTOFF_ACCELERATION_THRESHOLD = 16;
+            LIFTOFF_ACCELERATION_THRESHOLD = 18;
             APOGEE_DETECTION_THRESHOLD = 0.5;
             break;
         case F44:
-            LIFTOFF_ACCELERATION_THRESHOLD = 60;
+            LIFTOFF_ACCELERATION_THRESHOLD = 50;
             APOGEE_DETECTION_THRESHOLD = 1;
+            break;
+        case F32:
+            LIFTOFF_ACCELERATION_THRESHOLD = 35;
+            APOGEE_DETECTION_THRESHOLD = 0.7;
             break;
         default:
             LIFTOFF_ACCELERATION_THRESHOLD = 30;
