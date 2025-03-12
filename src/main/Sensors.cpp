@@ -45,7 +45,7 @@ void thresholdConfig(MotorType motor){
         default:
             LIFTOFF_ACCELERATION_THRESHOLD = 30;
             APOGEE_DETECTION_THRESHOLD = 2;
-            serial.print("Motor type not recognized, using default values");
+            Serial.print("Motor type not recognized, using default values");
             break;
     }
 }
