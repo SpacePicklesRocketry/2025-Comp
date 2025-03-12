@@ -3,6 +3,8 @@
 // #include "Airbrake.h"
 // #include "Parachute.h"
 
+MotorType motor = F26; // CHANGE TO CORRECT MOTOR TYPE
+
 SensorData previousData = {};
 
 void setup() {
@@ -16,6 +18,7 @@ void setup() {
     initializeSensors();
     initializeAirbrake();
     setDeploymentDelayAirbrake(10);
+    thresholdConfig(motor);
 //     initializeParachute();
 //     setDeploymentDelayParachute(0);
 

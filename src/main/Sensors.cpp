@@ -7,7 +7,6 @@
 // #define BMP1_ADDR 0x76                // Address of the first BMP390
 #define BMP2_ADDR 0x77                // Address of the second BMP390
 #define SEALEVELPRESSURE_HPA 1019     // Standard sea-level pressure in hPa
-#define APOGEE_DETECTION_THRESHOLD -0.5  // m/s, threshold for apogee detection
 #define MOVING_AVG_WINDOW 10          // Number of samples for moving average
 
 // Adafruit_BMP3XX bmp1;
@@ -25,6 +24,31 @@ unsigned long initialTime;
 float altitudeHistory[MOVING_AVG_WINDOW] = {0};
 int altitudeIndex = 0;
 bool bufferFilled = false;
+
+int LIFTOFF_ACCELERATION_THRESHOLD = 0;
+float APOGEE_DETECTION_THRESHOLD = 0;
+
+void thresholdConfig(MotorType motor){
+    switch(motor){
+        case F26:
+            LIFTOFF_ACCELERATION_THRESHOLD = 33;
+            APOGEE_DETECTION_THRESHOLD = 0.7;
+            break;
+        case F15:
+            LIFTOFF_ACCELERATION_THRESHOLD = 16;
+            APOGEE_DETECTION_THRESHOLD = 0.5;
+            break;
+        case F44:
+            LIFTOFF_ACCELERATION_THRESHOLD = 60;
+            APOGEE_DETECTION_THRESHOLD = 1;
+            break;
+        default:
+            LIFTOFF_ACCELERATION_THRESHOLD = 30;
+            APOGEE_DETECTION_THRESHOLD = 2;
+            serial.print("Motor type not recognized, using default values");
+            break;
+    }
+}
 
 // **Function Prototype**
 float computeMovingAverage(float newAltitude);

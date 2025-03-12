@@ -4,8 +4,6 @@
 #include <SimpleKalmanFilter.h>
 
 #define GRAVITY 9.81
-#define LIFTOFF_ACCELERATION_THRESHOLD 30 // TODO
-#define APOGEE_DETECTION_THRESHOLD 1 //TODO
 
 struct SensorData {
     unsigned long timestamp;
@@ -25,6 +23,21 @@ struct SensorData {
 // Kalman Filters
 extern SimpleKalmanFilter altitudeFilter;
 extern SimpleKalmanFilter gyroFilter;
+
+//motor types to determin threshold values
+enum MotorType {
+    F26,
+    F15,
+    F44
+};
+
+//Motor type global
+extern MotorType motor;
+
+extern int LIFTOFF_ACCELERATION_THRESHOLD;
+extern float APOGEE_DETECTION_THRESHOLD;
+
+void thresholdConfig(MotorType motor);
 
 void initializeSensors();
 SensorData readSensors(float deltaTime, SensorData& previousData);
