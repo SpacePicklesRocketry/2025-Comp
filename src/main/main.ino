@@ -26,7 +26,7 @@ void setup() {
     initializeSDCard();
     createLogFile();
 
-    // Serial.println("System Initialized");
+    Serial.println("System Initialized");
 }
 
 void loop() {
@@ -40,19 +40,19 @@ void loop() {
 
     SensorData currentData = readSensors(deltaTime, previousData);
     
-    updateAirbrake(currentData);
+    // updateAirbrake(currentData);
 //     updateParachute(currentData);
     logData(currentData);
  
     previousData = currentData;
 
     
-    // Serial.println(currentData.altitude);
-    // Serial.println(currentData.rateOfChange);
-    // Serial.print(currentData.apogeeDetected);
-    // if (currentData.apogeeDetected){
-    //   Serial.println(currentData.apogeeTime);
-    // }
+    Serial.println(currentData.altitude);
+    Serial.println(currentData.rateOfChange);
+    Serial.print(currentData.apogeeDetected);
+    if (currentData.apogeeDetected){
+      Serial.println(currentData.apogeeTime);
+    }
 
     // if (currentData.liftoffDetected) { 
     //     Serial.print("Liftoff detected! LiftTime: ");
