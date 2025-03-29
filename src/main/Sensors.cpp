@@ -138,6 +138,11 @@ SensorData readSensors(float deltaTime, SensorData &previousData) {
     data.accelY = linAccel.y();
     data.accelZ = linAccel.z();
 
+    float accelMagnitude = sqrt(
+    data.accelX * data.accelX +
+    data.accelY * data.accelY +
+    data.accelZ * data.accelZ);
+
     data.velocityX = previousData.velocityX + data.accelX * deltaTime;
     data.velocityY = previousData.velocityY + data.accelY * deltaTime;
     data.velocityZ = previousData.velocityZ + data.accelZ * deltaTime;
@@ -153,7 +158,7 @@ SensorData readSensors(float deltaTime, SensorData &previousData) {
     data.rateOfChange = (data.altitude - previousAltitude) / deltaTime;
 
     // Liftoff detection
-    if (!previousData.liftoffDetected && (data.accelZ > LIFTOFF_ACCELERATION_THRESHOLD)) {
+    if (!previousData.liftoffDetected && (accelMagnitude > LIFTOFF_ACCELERATION_THRESHOLD)) {
         data.liftoffDetected = true;
         data.liftoffTime = millis();
         Serial.print("Liftoff detected! LiftTime: ");

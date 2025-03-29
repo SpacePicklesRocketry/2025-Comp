@@ -3,7 +3,7 @@
 // #include "Airbrake.h"
 // #include "Parachute.h"
 
-MotorType motor = F26; // CHANGE TO CORRECT MOTOR TYPE
+MotorType motor = F32; // CHANGE TO CORRECT MOTOR TYPE
 
 SensorData previousData = {};
 
@@ -16,11 +16,11 @@ void setup() {
     Serial.println(startTime);
 
     initializeSensors();
-    initializeAirbrake();
-    setDeploymentDelayAirbrake(10);
+    // initializeAirbrake();
+    // setDeploymentDelayAirbrake(10);
     thresholdConfig(motor);
 //     initializeParachute();
-//     setDeploymentDelayParachute(0);
+//     setDeploymentDelayParachute(2);
 
   
     initializeSDCard();
@@ -46,13 +46,15 @@ void loop() {
  
     previousData = currentData;
 
+
+    Serial.println(LIFTOFF_ACCELERATION_THRESHOLD);
     
-    Serial.println(currentData.altitude);
-    Serial.println(currentData.rateOfChange);
-    Serial.print(currentData.apogeeDetected);
-    if (currentData.apogeeDetected){
-      Serial.println(currentData.apogeeTime);
-    }
+    // Serial.println(currentData.altitude);
+    // Serial.println(currentData.rateOfChange);
+    // Serial.print(currentData.apogeeDetected);
+    // if (currentData.apogeeDetected){
+    //   Serial.println(currentData.apogeeTime);
+    // }
 
     // if (currentData.liftoffDetected) { 
     //     Serial.print("Liftoff detected! LiftTime: ");
