@@ -1,5 +1,6 @@
 #include "Sensors.h"
 #include <MKRIMU.h>
+#include <Arduino_MKRGPS.h>
 #include <math.h>
 #include <Adafruit_BMP3XX.h>
 #include <Adafruit_BNO055.h>
@@ -20,6 +21,12 @@ float baseAltitude = 0;
 bool altitudeZeroed = false;  
 float initialRoll = 0, initialPitch = 0, initialYaw = 0;
 unsigned long initialTime;
+const float earthRadius = 6371.0; //in km
+
+//3 point structure
+struct position3{
+    float x, y, z,;
+};
 
 // Moving average buffer for altitude
 float altitudeHistory[MOVING_AVG_WINDOW] = {0};
@@ -48,6 +55,13 @@ void initializeSensors() {
         Serial.println("Sensor 2 not found at address 0x77");
     } else {
         Serial.println("Sensor 2 initialized at address 0x77");
+    }
+
+    //intialize GPS
+    if (!GPS.begin()) {
+        Serial.println("Failed to initialize GPS!");
+    } else {
+        Serial.println("GPS sucesfully initialized");
     }
 
     // Configure BMP sensors
@@ -119,7 +133,7 @@ SensorData readSensors(float deltaTime, SensorData &previousData) {
     data.positionZ = previousData.positionZ + data.velocityZ * deltaTime;
 
     // Read altitude, apply moving average filter
-    float rawAltitude = readAltitudeFromBMP();
+    float rawAltitude = blend(GPS.altitude, readAltitudeFromBMP(), .65, 15);  
     data.altitude = (rawAltitude - baseAltitude);
     //data.altitude = computeMovingAverage(rawAltitude - baseAltitude);
     data.rateOfChange = (data.altitude - previousAltitude) / deltaTime;
@@ -176,4 +190,21 @@ float computeMovingAverage(float newAltitude) {
         sum += altitudeHistory[i];
     }
     return sum / count;
+}
+
+position3 lonLatToEuclidian(double lon, double lat, double refLat, double refLon){
+    double latRad = lat * M_PI / 180;
+    double lonRad = lon * M_PI/180;
+    double refLatRad = refLat * M_PI / 180;
+    double refLonRad = refLon * M_PI/180;
+
+    double x = earthRadius* (lonRad - refLonRad) * cos((latRad + refLatRad) / 2.0);
+    double y = R * (latRad - refLatRad);
+
+    return {x, y, GPS.altitude};
+}
+
+inline double blend(double a, double b, double weightA, double weightB) {
+    double totalWeight = weightA + weightB;
+    return (weightA * a + weightB * b) / totalWeight;
 }
