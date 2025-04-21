@@ -43,6 +43,30 @@ void initializeSensors() {
         while (1) delay(10);
     }
     Serial.println("BNO055 Initialized");
+        
+    if (!GPS.begin()) {
+        Serial.println("Failed to initialize GPS!");
+        while(1);
+        delay(10);
+    }
+    
+    
+    if (GPS.available()){
+        Serial.print("GPS intialized with ");
+        Serial.print(GPS.satellites());
+        Serial.println("satelites");
+    }
+    else{
+        delay(4000);
+        while (!GPS.available()){
+            Serial.println("Waiting for GPS");
+        }
+        Serial.print("GPS intialized with ");
+        Serial.print(GPS.satellites());
+        Serial.println(" satelites");
+    }
+
+    
 
     // Initialize BMP sensors
     if (!bmp1.begin_I2C(BMP1_ADDR)) {
@@ -50,6 +74,7 @@ void initializeSensors() {
     } else {
         Serial.println("Sensor 1 initialized at address 0x76");
     }
+    
 
     if (!bmp2.begin_I2C(BMP2_ADDR)) {
         Serial.println("Sensor 2 not found at address 0x77");
@@ -104,6 +129,7 @@ void initializeSensors() {
     initialTime = millis();
 
     Serial.println("Initialization complete.");
+
 }
 
 SensorData readSensors(float deltaTime, SensorData &previousData) {
@@ -131,6 +157,11 @@ SensorData readSensors(float deltaTime, SensorData &previousData) {
     data.positionX = previousData.positionX + data.velocityX * deltaTime;
     data.positionY = previousData.positionY + data.velocityY * deltaTime;
     data.positionZ = previousData.positionZ + data.velocityZ * deltaTime;
+
+
+    data.longitude = GPS.longitude();
+    data.latitude = GPS.latitude();
+    data.satellites = GPS.satellites();
 
     // Read altitude, apply moving average filter
     float rawAltitude = blend(GPS.altitude, readAltitudeFromBMP(), .65, 15);  

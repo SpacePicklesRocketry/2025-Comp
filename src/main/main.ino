@@ -42,40 +42,45 @@ void loop() {
     previousData = currentData;
 
     Serial.println(currentData.altitude);
-    // Serial.print(currentData.apogeeDetected);
-    // if (currentData.apogeeDetected){
-    //   Serial.println(currentData.apogeeTime);
-    // }
+    Serial.print(currentData.apogeeDetected);
+    if (currentData.apogeeDetected){
+      Serial.println(currentData.apogeeTime);
+    }
 
-    // if (currentData.liftoffDetected) { 
-    //     Serial.print("Liftoff detected! LiftTime: ");
-    //     Serial.println(currentData.liftoffTime);
-    // }
+    if (currentData.liftoffDetected) { 
+        Serial.print("Liftoff detected! LiftTime: ");
+        Serial.println(currentData.liftoffTime);
+    }
 
-    // Serial.print("Accel (m/s^2): ");
-    // Serial.print("X: "); Serial.print(currentData.accelX);
-    // Serial.print(", Y: "); Serial.print(currentData.accelY);
-    // Serial.print(", Z: "); Serial.println(currentData.accelZ);
+    Serial.print("Accel (m/s^2): ");
+    Serial.print("X: "); Serial.print(currentData.accelX);
+    Serial.print(", Y: "); Serial.print(currentData.accelY);
+    Serial.print(", Z: "); Serial.println(currentData.accelZ);
 
-    // Serial.print("Gyro (deg/s): ");
-    // Serial.print("X: "); Serial.print(currentData.gyroX);
-    // Serial.print(", Y: "); Serial.print(currentData.gyroY);
-    // Serial.print(", Z: "); Serial.println(currentData.gyroZ);
+    Serial.print("Gyro (deg/s): ");
+    Serial.print("X: "); Serial.print(currentData.gyroX);
+    Serial.print(", Y: "); Serial.print(currentData.gyroY);
+    Serial.print(", Z: "); Serial.println(currentData.gyroZ);
 
-    // Serial.print("Angle (deg): ");
-    // Serial.print("Roll: "); Serial.print(currentData.roll);
-    // Serial.print(", Pitch: "); Serial.print(currentData.pitch);
-    // Serial.print(", Yaw: "); Serial.println(currentData.yaw);
+    Serial.print("Angle (deg): ");
+    Serial.print("Roll: "); Serial.print(currentData.roll);
+    Serial.print(", Pitch: "); Serial.print(currentData.pitch);
+    Serial.print(", Yaw: "); Serial.println(currentData.yaw);
 
-    // Serial.print("Speed (m/s: ");
-    // Serial.print("X: "); Serial.print(currentData.velocityX);
-    // Serial.print(", Y: "); Serial.print(currentData.velocityY);
-    // Serial.print(", Z: "); Serial.println(currentData.velocityZ);
+    Serial.print("Speed (m/s: ");
+    Serial.print("X: "); Serial.print(currentData.velocityX);
+    Serial.print(", Y: "); Serial.print(currentData.velocityY);
+    Serial.print(", Z: "); Serial.println(currentData.velocityZ);
 
-    // Serial.print("Position (m): ");
-    // Serial.print("X: "); Serial.print(currentData.positionX);
-    // Serial.print(", Y: "); Serial.print(currentData.positionY);
-    // Serial.print(", Z: "); Serial.println(currentData.positionZ);
+    Serial.print("Position (m): ");
+    Serial.print("X: "); Serial.print(currentData.positionX);
+    Serial.print(", Y: "); Serial.print(currentData.positionY);
+    Serial.print(", Z: "); Serial.println(currentData.positionZ);
+
+    Serial.print("GPS Data: ");
+    Serial.print("Latitude: "); Serial.print(currentData.latitude);
+    Serial.print(", Longitude: "); Serial.print(currentData.longitude);
+    Serial.print(", Satellites "); Serial.println(currentData.satellites);
 
     delay(100); // Small delay for stability
 }

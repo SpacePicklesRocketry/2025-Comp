@@ -20,6 +20,9 @@ struct SensorData {
     bool apogeeDetected; // Flag for apogee detection
     unsigned long apogeeTime; // Timestamp of apogee
     float rateOfChange;  //(m/s)
+    double latitude;
+    double longitude;
+    int satellites;
 };
 
 // Kalman Filters
