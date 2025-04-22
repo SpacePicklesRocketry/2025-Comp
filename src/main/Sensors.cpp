@@ -34,8 +34,8 @@ bool gpsRefSet = false;
 
 
 SimpleKalmanFilter kalmanAX(5, 0.6, 0.25);
-SimpleKalmanFilter kalmanAY(5, 0.8, 0.8);
-SimpleKalmanFilter kalmanAZ(1, .1, 0.4);
+SimpleKalmanFilter kalmanAY(6, 0.8, 0.8);
+SimpleKalmanFilter kalmanAZ(10, .01, 0.1);
 
 
 

@@ -26,6 +26,7 @@ void setup() {
 }
 
 void loop() {
+    digitalWrite(LED_BUILTIN, 1);
     // Delta time calculation
     static unsigned long lastTime = 0;
     if (lastTime == 0) lastTime = millis();
@@ -84,5 +85,5 @@ void loop() {
     Serial.print(", Satellites "); Serial.println(currentData.satellites, 7);
 
     Serial.println(" ");
-
+    digitalWrite(LED_BUILTIN, 0);
 }
