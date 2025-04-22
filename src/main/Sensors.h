@@ -20,8 +20,8 @@ struct SensorData {
     bool apogeeDetected; // Flag for apogee detection
     unsigned long apogeeTime; // Timestamp of apogee
     float rateOfChange;  //(m/s)
-    double latitude;
-    double longitude;
+    float latitude;
+    float longitude;
     int satellites;
 };
 
@@ -32,5 +32,5 @@ extern SimpleKalmanFilter gyroFilter;
 void initializeSensors();
 SensorData readSensors(float deltaTime, SensorData& previousData);
 float readAltitudeFromBMP();
-
+void calibrateSensors();
 #endif 

@@ -14,6 +14,7 @@ void setup() {
     // Serial.println(startTime);
 
     initializeSensors();
+    calibrateSensors();
     // initializeAirbrake();
     // setDeploymentDelayAirbrake(5);
 //     initializeParachute();
@@ -30,7 +31,7 @@ void loop() {
     if (lastTime == 0) lastTime = millis();
 
     unsigned long currentTime = millis();
-    float deltaTime = (currentTime - lastTime) * 0.001;
+    float deltaTime = (currentTime - lastTime) * .001;
     lastTime = currentTime;
 
     SensorData currentData = readSensors(deltaTime, previousData);
@@ -78,9 +79,10 @@ void loop() {
     Serial.print(", Z: "); Serial.println(currentData.positionZ);
 
     Serial.print("GPS Data: ");
-    Serial.print("Latitude: "); Serial.print(currentData.latitude);
-    Serial.print(", Longitude: "); Serial.print(currentData.longitude);
-    Serial.print(", Satellites "); Serial.println(currentData.satellites);
+    Serial.print("Latitude: "); Serial.print(currentData.latitude, 7);
+    Serial.print(", Longitude: "); Serial.print(currentData.longitude, 7);
+    Serial.print(", Satellites "); Serial.println(currentData.satellites, 7);
 
-    delay(100); // Small delay for stability
+    Serial.println(" ");
+
 }

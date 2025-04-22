@@ -63,9 +63,9 @@ void logData(const SensorData& data) {
         dataFile.print(", ");
         dataFile.print(data.apogeeDetected);
         dataFile.print(", ");
-        dataFile.print(data.latitude);
+        dataFile.print(data.latitude, 7);
         dataFile.print(", ");
-        dataFile.print(data.longitude);
+        dataFile.print(data.longitude, 7);
         dataFile.print(", ");
         dataFile.print(data.satellites);        
         // dataFile.print(", ");
