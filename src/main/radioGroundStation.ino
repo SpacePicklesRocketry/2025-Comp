@@ -3,21 +3,22 @@
 
 // Define the struct as received from the slave
 struct SensorData {
-  unsigned long timestamp;
-  float accelX, accelY, accelZ;
-  float gyroX, gyroY, gyroZ;
-  float roll, pitch, yaw;
-  float velocityX, velocityY, velocityZ;
-  float positionX, positionY, positionZ;
-  float altitude;
-  bool liftoffDetected;
-  unsigned long liftoffTime;
-  bool apogeeDetected;
-  unsigned long apogeeTime;
-  float rateOfChange;
-  float latitude;
-  float longitude;
-  int satellites;
+    unsigned long timestamp;
+    float accelX, accelY, accelZ;  // Acceleration (m/s^2)
+    float rawAX, rawAY, rawAZ; // raw values for debugging
+    float gyroX, gyroY, gyroZ;    // Angular velocity (deg/s)
+    float roll, pitch, yaw; // Roll, pitch, yaw (degrees)
+    float velocityX, velocityY, velocityZ; // Velocity (m/s)
+    float positionX, positionY, positionZ; // Position (m)
+    float altitude; // Altitude (m)
+    bool liftoffDetected; // Flag for liftoff detection
+    unsigned long liftoffTime; // Timestamp of liftoff
+    bool apogeeDetected; // Flag for apogee detection
+    unsigned long apogeeTime; // Timestamp of apogee
+    float rateOfChange;  //(m/s)
+    float latitude;
+    float longitude;
+    int satellites;
 };
 
 SensorData receivedData;
