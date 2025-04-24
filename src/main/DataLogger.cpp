@@ -30,7 +30,7 @@ void createLogFile() {
     dataFile = SD.open(filename, FILE_WRITE);
     if (dataFile) {
         // Write header row
-        dataFile.println("Time, Roll, Pitch, Yaw, AccelX, AccelY, AccelZ, Altitude, Liftoff, Apogee, Latitude, Longitude");
+        dataFile.println("Time, Roll, Pitch, Yaw, AccelX, VelocityX, RawAX, AccelY, VelocityY, RawAY, AccelZ, VelocityZ, RawAZ, Altitude, Liftoff, Apogee, Latitude, Longitude");
         dataFile.close();
         Serial.print("Log file created: ");
         Serial.println(filename);
@@ -53,9 +53,21 @@ void logData(const SensorData& data) {
         dataFile.print(", ");
         dataFile.print(data.accelX);
         dataFile.print(", ");
+        dataFile.print(data.velocityX);
+        dataFile.print(", ");
+        dataFile.print(data.rawAX);
+        dataFile.print(", ");
         dataFile.print(data.accelY);
         dataFile.print(", ");
+        dataFile.print(data.velocityY);
+        dataFile.print(", ");
+        dataFile.print(data.rawAY);
+        dataFile.print(", ");
         dataFile.print(data.accelZ);
+        dataFile.print(", ");
+        dataFile.print(data.velocityZ);
+        dataFile.print(", ");
+        dataFile.print(data.rawAZ);
         dataFile.print(", ");
         dataFile.print(data.altitude);
         dataFile.print(", ");

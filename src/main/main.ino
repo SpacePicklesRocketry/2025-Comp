@@ -14,7 +14,6 @@ void setup() {
     // Serial.println(startTime);
 
     initializeSensors();
-    calibrateSensors();
     // initializeAirbrake();
     // setDeploymentDelayAirbrake(5);
 //     initializeParachute();

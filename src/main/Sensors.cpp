@@ -11,7 +11,7 @@
 #define BMP2_ADDR 0x77
 #define SEALEVELPRESSURE_HPA 1019
 #define APOGEE_DETECTION_THRESHOLD -0.5
-#define MOVING_AVG_WINDOW 10
+#define MOVING_AVG_WINDOW 3
 #define LIFTOFF_ACCELERATION_THRESHOLD 3.0  // <- Add this if missing from Sensors.h
 #define SPEED_MOVING_AVG_WINDOW 6  // Define the size of the moving average window
 
@@ -34,7 +34,7 @@ bool gpsRefSet = false;
 
 
 SimpleKalmanFilter kalmanAX(5, 0.6, 0.25);
-SimpleKalmanFilter kalmanAY(6, 0.8, 0.8);
+SimpleKalmanFilter kalmanAY(1, .4, 0.24);
 SimpleKalmanFilter kalmanAZ(10, .01, 0.1);
 
 
@@ -123,10 +123,10 @@ void initializeSensors() {
 
     delay(3000);  // Give GPS some time to start acquiring
 
-    while (!GPS.available()) {
-        Serial.println("Waiting for GPS fix...");
-        delay(1);
-    }
+    // while (!GPS.available()) {
+    //     Serial.println("Waiting for GPS fix...");
+    //     delay(1);
+    // }
 
     Serial.print("GPS initialized with ");
     Serial.print(GPS.satellites());
@@ -201,24 +201,31 @@ SensorData readSensors(float deltaTime, SensorData &prev) {
     float tempAccelY = kalmanAY.updateEstimate(accel.y() - accelOffsetY);
     float tempAccelZ = kalmanAZ.updateEstimate(accel.z() - accelOffsetZ);
 
+    data.rawAX = accel.x();
+    data.rawAY = accel.y();
+    data.rawAZ = accel.z();
 
     // Apply deadband
     float filtAX = applyDeadband(tempAccelX, 0.08);
     float filtAY = applyDeadband(tempAccelY, 0.09);
     float filtAZ = applyDeadband(tempAccelZ, 0.08);
 
-    data.accelX= filtAX;
-    data.accelY= filtAY;
-    data.accelZ= filtAZ;
+    data.accelX = filtAX;
+    data.accelY = filtAY;
+    data.accelZ = filtAZ;
 
     // Integrate for velocity and apply smoothing
     float velX = prev.velocityX + data.accelX * deltaTime;
     float velY = prev.velocityY + data.accelY * deltaTime;
     float velZ = prev.velocityZ + data.accelZ * deltaTime;
 
-    data.velocityX = computeSpeedMovingAverage(velX);
-    data.velocityY = computeSpeedMovingAverage(velY);
-    data.velocityZ = computeSpeedMovingAverage(velZ);
+    data.velocityX = computeMovingAverage(velX);
+    data.velocityY = computeMovingAverage(velY);
+    data.velocityZ = computeMovingAverage(velZ);
+
+    prev.velocityX=data.velocityX;
+    prev.velocityY=data.velocityY;
+    prev.velocityZ=data.velocityZ;
 
     // Position integration
     data.positionX = prev.positionX + data.velocityX * deltaTime;
@@ -242,6 +249,7 @@ SensorData readSensors(float deltaTime, SensorData &prev) {
     data.timestamp = now - initialTime;
     return data;
 }
+
 
 
 
