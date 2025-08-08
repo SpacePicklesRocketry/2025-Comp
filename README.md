@@ -35,7 +35,7 @@ Comprehensive sensor calibration ensures accurate and reliable readings by elimi
 
 **General**
    - Clone into your IDE, then open `main.ino` in the Arduino IDE.
-   - **Important:** Ensure that `main.ino` is located in a folder named `main`. This is a requirement for the Arduino IDE.
+   - **Important:** Ensure that `main.ino` is located in a folder named `main`. 
 
 **Serial Monitor:**
    - Always close the Serial Monitor before uploading code to the board. Leaving the Serial Monitor open can cause unexpected data leaks or interfere with the upload process.
